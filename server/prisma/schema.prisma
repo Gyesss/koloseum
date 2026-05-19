@@ -11,3 +11,327 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+// USERS
+
+enum UserRole {
+  ADMIN
+  ORGANIZER
+  MEMBER
+}
+
+enum UserGender {
+  MALE
+  FEMALE
+}
+
+model User {
+  id             String             @id @default(uuid())
+  events         Event[]
+  collaborations PostCollaborator[]
+  postLikes      PostLike[]
+  comments       Comment[]
+  commentLikes   CommentLike[]
+  pollVotes      PollVote[]
+  notifications  Notification[]
+
+  username String @unique @db.VarChar(32)
+  email    String @unique @db.VarChar(255)
+  password String
+
+  fullName String      @map("full_name") @db.VarChar(124)
+  role     UserRole    @default(MEMBER)
+  avatar   Bytes?
+  banner   Bytes?
+  bio      String?     @db.Text
+  phone    String?     @db.VarChar(32)
+  address  String?     @db.Text
+  birthDay DateTime?   @map("birth_day")
+  gender   UserGender?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// EVENTS
+
+model Event {
+  id        String     @id @default(uuid())
+  users     User[]
+  timelines Timeline[]
+  qnas      Qna[]
+  posts     Post[]
+
+  name        String   @db.VarChar(124)
+  tagline     String   @db.VarChar(64)
+  description String   @db.Text
+  location    String
+  startAt     DateTime @map("start_at")
+  endAt       DateTime @map("end_at")
+
+  mood   String @db.VarChar(7)
+  banner Bytes?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("events")
+}
+
+enum TimelineType {
+  OPENING
+  MC
+  SHOW
+  CONTEST
+  ICE_BREAKING
+  BREAKS
+  CLOSING
+  OTHER
+}
+
+model Timeline {
+  id      String @id @default(uuid())
+  eventId String @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  name       String       @db.VarChar(124)
+  additional String?      @db.Text
+  type       TimelineType
+
+  startAt DateTime @map("start_at")
+  endAt   DateTime @map("end_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("timelines")
+}
+
+model Qna {
+  id      String @id @default(uuid())
+  eventId String @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  question String @db.Text
+  answer   String @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("qna")
+}
+
+// POSTS
+
+enum PostType {
+  ANNOUNCEMENT
+  PROJECT
+  REWARD
+}
+
+model Post {
+  id            String             @id @default(uuid())
+  collaborators PostCollaborator[]
+
+  eventId String @map("event_id")
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  title     String     @db.VarChar(124)
+  caption   String?    @db.Text
+  media     Media[]
+  postLikes PostLike[]
+  comments  Comment[]
+  poll      Poll?
+
+  postType   PostType?
+  isFeatured Boolean   @default(false) @map("is_featured")
+
+  startAt DateTime? @map("start_at")
+  endAt   DateTime? @map("end_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("posts")
+}
+
+model PostCollaborator {
+  postId String
+  userId String
+
+  invitedAt  DateTime  @default(now()) @map("invited_at")
+  acceptedAt DateTime? @map("accepted_at")
+  isOwner    Boolean   @default(false) @map("is_owner")
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([postId, userId])
+  @@map("post_collaborators")
+}
+
+model Media {
+  id     String @id @default(uuid())
+  postId String @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id])
+
+  blob Bytes
+  name String @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("media")
+}
+
+model PostLike {
+  id String @id @default(uuid())
+
+  userId String @map("user_id")
+  postId String @map("post_id")
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@map("post_likes")
+}
+
+model Comment {
+  id           String        @id @default(uuid())
+  commentLikes CommentLike[]
+
+  userId String @map("user_id")
+  postId String @map("post_id")
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  content String @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([postId])
+  @@map("comments")
+}
+
+model CommentLike {
+  id String @id @default(uuid())
+
+  userId    String @map("user_id")
+  commentId String @map("comment_id")
+
+  user    User    @relation(fields: [userId], references: [id])
+  comment Comment @relation(fields: [commentId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([commentId])
+  @@map("comment_likes")
+}
+
+// POLLS
+
+model Poll {
+  id     String @id @default(uuid())
+  postId String @unique @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id])
+
+  question   String @db.Text
+  maxChoices Int    @default(1) @map("max_choices") @db.UnsignedInt
+
+  options PollOption[]
+  votes   PollVote[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("polls")
+}
+
+model PollOption {
+  id     String @id @default(uuid())
+  pollId String @map("poll_id")
+  poll   Poll   @relation(fields: [pollId], references: [id])
+
+  value String     @db.VarChar(255)
+  votes PollVote[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([pollId])
+  @@map("poll_options")
+}
+
+model PollVote {
+  id String @id @default(uuid())
+
+  userId   String @map("user_id")
+  pollId   String @map("poll_id")
+  optionId String @map("option_id")
+
+  user   User       @relation(fields: [userId], references: [id])
+  poll   Poll       @relation(fields: [pollId], references: [id])
+  option PollOption @relation(fields: [optionId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, pollId, optionId])
+  @@index([userId])
+  @@index([pollId])
+  @@index([optionId])
+  @@map("poll_votes")
+}
+
+// OTHERS
+
+enum NotificationType {
+  SYSTEM
+  EVENT
+  POST
+  COMMENT
+  LIKE
+  POLL
+  ANNOUNCEMENT
+  OTHER
+}
+
+model Notification {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  title   String           @db.VarChar(124)
+  content String           @db.Text
+  type    NotificationType
+  isRead  Boolean          @default(false) @map("is_read")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+// ===== DEVELOPER NOTE =====
+// SOFT DELETE (CANCELED)
+// PINNED / FEATURED (DONE)
+// NOTIF AND ANNOUNCEMENT PER EVENT (DONE)
+// QNA (DONE)
+// PROJECT (DONE)
+// ABSANCE (CANCELED)
+// OBJECT STORAGE
