@@ -5,13 +5,9 @@ export const createUser = (data) => {
 };
 
 export const findByEmail = (email) => {
-  return prisma.user.findUnique({
-    where: { email },
-  });
+  return prisma.user.findUnique({ where: { email } });
 };
 
 export const findById = (id) => {
-  return prisma.user.findUnique({
-    where: { id },
-  });
+  return prisma.user.findUnique({ where: { id } });
 };
