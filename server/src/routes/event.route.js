@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as controller from "../controllers/event.controller.js";
 import { auth } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
+import timelineRoute from "./timeline.route.js";
 
 const router = Router();
 
@@ -29,5 +30,7 @@ router.delete(
   authorize(["ADMIN", "ORGANIZER"]),
   controller.deleteEvent,
 );
+
+router.use("/:eventId/timelines", timelineRoute);
 
 export default router;

@@ -80,6 +80,7 @@ model Event {
 }
 
 enum TimelineType {
+  CEREMONIAL
   OPENING
   MC
   SHOW
