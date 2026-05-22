@@ -3,6 +3,7 @@ import * as controller from "../controllers/event.controller.js";
 import { auth } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import timelineRoute from "./timeline.route.js";
+import qnaRoute from "./qna.route.js";
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.delete(
 );
 
 router.use("/:eventId/timelines", timelineRoute);
+router.use("/:eventId/qnas", qnaRoute);
 
 export default router;
