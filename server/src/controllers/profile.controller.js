@@ -23,9 +23,9 @@ export const updateProfile = async (req, res) => {
 };
 
 export const getProfile = async (req, res) => {
-  const username = req.params.username;
+  const id = req.params.id;
 
-  const user = await service.getProfile(username);
+  const user = await service.getProfile(id);
 
   res.json({
     success: true,

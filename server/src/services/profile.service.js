@@ -6,8 +6,8 @@ export const updateProfile = async (userId, data) => {
   return user;
 };
 
-export const getProfile = async (username) => {
-  const user = await repo.findByUsername(username);
+export const getProfile = async (id) => {
+  const user = await repo.findById(id);
 
   return user;
 };

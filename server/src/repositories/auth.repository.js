@@ -4,6 +4,19 @@ export const createUser = (data) => {
   return prisma.user.create({ data });
 };
 
+export const updateUserRole = (userId, role) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { role },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+    },
+  });
+};
+
 export const findByEmail = (email) => {
   return prisma.user.findUnique({ where: { email } });
 };

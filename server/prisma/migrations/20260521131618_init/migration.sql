@@ -54,7 +54,7 @@ CREATE TABLE `timelines` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `qna` (
+CREATE TABLE `qnas` (
     `id` VARCHAR(191) NOT NULL,
     `event_id` VARCHAR(191) NOT NULL,
     `question` TEXT NOT NULL,
@@ -214,7 +214,7 @@ CREATE TABLE `_EventToUser` (
 ALTER TABLE `timelines` ADD CONSTRAINT `timelines_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `qna` ADD CONSTRAINT `qna_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `qnas` ADD CONSTRAINT `qnas_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `posts` ADD CONSTRAINT `posts_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

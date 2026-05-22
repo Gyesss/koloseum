@@ -23,9 +23,9 @@ export const updateById = (id, data) => {
   });
 };
 
-export const findByUsername = (username) => {
+export const findById = (id) => {
   return prisma.user.findUnique({
-    where: { username },
+    where: { id },
     select: {
       id: true,
       username: true,
