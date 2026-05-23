@@ -3,6 +3,7 @@ import * as controller from "../controllers/post.controller.js";
 import { auth } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import postCollaboratorRoute from "./post-collaborator.route.js";
+import postLikeRoute from "./post-like.route.js";
 import commentRoute from "./comment.route.js";
 
 const router = Router({ mergeParams: true });
@@ -33,6 +34,7 @@ router.delete(
 );
 
 router.use("/:postId/collaborators", postCollaboratorRoute);
+router.use("/:postId/likes", postLikeRoute);
 router.use("/:postId/comments", commentRoute);
 
 export default router;
