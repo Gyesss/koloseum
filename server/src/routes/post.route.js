@@ -5,6 +5,7 @@ import { authorize } from "../middlewares/role.middleware.js";
 import postCollaboratorRoute from "./post-collaborator.route.js";
 import postLikeRoute from "./post-like.route.js";
 import commentRoute from "./comment.route.js";
+import pollRoute from "./poll.route.js";
 
 const router = Router({ mergeParams: true });
 
@@ -36,5 +37,6 @@ router.delete(
 router.use("/:postId/collaborators", postCollaboratorRoute);
 router.use("/:postId/likes", postLikeRoute);
 router.use("/:postId/comments", commentRoute);
+router.use("/:postId/poll", pollRoute);
 
 export default router;
