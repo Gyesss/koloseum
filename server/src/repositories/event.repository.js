@@ -35,6 +35,7 @@ export const findEvents = () => {
       endAt: true,
       mood: true,
       createdAt: true,
+      bannerUrl: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -52,6 +53,7 @@ export const findEventById = (id) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
       timelines: true,
@@ -74,6 +76,7 @@ export const updateEventById = (id, data) => {
       endAt: true,
       mood: true,
       updatedAt: true,
+      bannerUrl: true,
     },
   });
 };

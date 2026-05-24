@@ -66,6 +66,7 @@ export const findTimelineById = (id) => {
           name: true,
           startAt: true,
           endAt: true,
+          bannerUrl: true,
         },
       },
     },

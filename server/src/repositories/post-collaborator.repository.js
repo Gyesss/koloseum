@@ -15,8 +15,15 @@ export const findPostById = (postId) => {
               username: true,
               fullName: true,
               role: true,
+              avatarUrl: true,
             },
           },
+        },
+
+        select: {
+          isOwner: true,
+          invitedAt: true,
+          acceptedAt: true,
         },
       },
     },
@@ -34,6 +41,7 @@ export const findUserById = (userId) => {
       username: true,
       fullName: true,
       role: true,
+      avatarUrl: true,
     },
   });
 };
@@ -54,6 +62,7 @@ export const findCollaborator = (postId, userId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
     },
@@ -74,6 +83,7 @@ export const createCollaborator = (postId, userId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
     },
@@ -100,6 +110,7 @@ export const acceptCollaboratorInvitation = (postId, userId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
     },
@@ -130,8 +141,15 @@ export const getCollaborators = (postId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
+    },
+
+    select: {
+      isOwner: true,
+      invitedAt: true,
+      acceptedAt: true,
     },
 
     orderBy: {

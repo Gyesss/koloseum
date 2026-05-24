@@ -52,6 +52,7 @@ export const findCommentById = (commentId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
 
@@ -83,6 +84,7 @@ export const getCommentsByPostId = (postId) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
 
@@ -116,6 +118,7 @@ export const updateComment = (commentId, data) => {
           username: true,
           fullName: true,
           role: true,
+          avatarUrl: true,
         },
       },
 

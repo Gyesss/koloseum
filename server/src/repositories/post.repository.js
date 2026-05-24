@@ -60,6 +60,15 @@ export const findPostsByEventId = (eventId) => {
     },
 
     include: {
+      media: {
+        select: {
+          url: true,
+          name: true,
+          mimeType: true,
+          size: true,
+        },
+      },
+
       collaborators: {
         where: {
           isOwner: true,
@@ -94,6 +103,15 @@ export const findPostById = (id) => {
     },
 
     include: {
+      media: {
+        select: {
+          url: true,
+          name: true,
+          mimeType: true,
+          size: true,
+        },
+      },
+
       collaborators: {
         include: {
           user: {
@@ -126,6 +144,15 @@ export const updatePostById = (id, data) => {
     data,
 
     include: {
+      media: {
+        select: {
+          url: true,
+          name: true,
+          mimeType: true,
+          size: true,
+        },
+      },
+
       collaborators: {
         where: {
           isOwner: true,

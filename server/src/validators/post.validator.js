@@ -8,6 +8,8 @@ export const createPostSchema = z
 
     postType: z.enum(["ANNOUNCEMENT", "PROJECT", "REWARD"]).optional(),
 
+    isDraft: z.boolean(),
+
     isFeatured: z.boolean().optional(),
 
     startAt: z.coerce.date().optional(),
@@ -23,6 +25,8 @@ export const updatePostSchema = z
     caption: z.string().max(10000).optional(),
 
     postType: z.enum(["ANNOUNCEMENT", "PROJECT", "REWARD"]).optional(),
+
+    isDraft: z.boolean(),
 
     isFeatured: z.boolean().optional(),
 

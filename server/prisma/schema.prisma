@@ -38,15 +38,15 @@ model User {
   email    String @unique @db.VarChar(255)
   password String
 
-  fullName String      @map("full_name") @db.VarChar(124)
-  role     UserRole    @default(MEMBER)
-  avatar   Bytes?
-  banner   Bytes?
-  bio      String?     @db.Text
-  phone    String?     @db.VarChar(32)
-  address  String?     @db.Text
-  birthDay DateTime?   @map("birth_day")
-  gender   UserGender?
+  fullName  String      @map("full_name") @db.VarChar(124)
+  role      UserRole    @default(MEMBER)
+  avatarUrl String?     @map("avatar") @db.Text
+  bannerUrl String?     @map("banner_url") @db.Text
+  bio       String?     @db.Text
+  phone     String?     @db.VarChar(32)
+  address   String?     @db.Text
+  birthDay  DateTime?   @map("birth_day")
+  gender    UserGender?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -70,8 +70,8 @@ model Event {
   startAt     DateTime @map("start_at")
   endAt       DateTime @map("end_at")
 
-  mood   String @db.VarChar(7)
-  banner Bytes?
+  mood      String  @db.VarChar(7)
+  bannerUrl String? @map("banner_url") @db.Text
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -146,6 +146,7 @@ model Post {
   poll      Poll?
 
   postType   PostType?
+  isDraft    Boolean   @default(true) @map("is_draft")
   isFeatured Boolean   @default(false) @map("is_featured")
 
   startAt DateTime? @map("start_at")
@@ -180,8 +181,10 @@ model Media {
   postId String @map("post_id")
   post   Post   @relation(fields: [postId], references: [id])
 
-  blob Bytes
-  name String @db.VarChar(255)
+  url      String  @db.Text
+  name     String  @db.VarChar(255)
+  mimeType String? @map("mime_type") @db.VarChar(124)
+  size     Int?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

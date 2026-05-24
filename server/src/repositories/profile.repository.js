@@ -17,8 +17,8 @@ export const updateById = (id, data) => {
       address: true,
       gender: true,
       birthDay: true,
-      // avatar: true,
-      // banner: true,
+      avatarUrl: true,
+      bannerUrl: true,
     },
   });
 };
@@ -34,8 +34,8 @@ export const findById = (id) => {
       bio: true,
       gender: true,
       birthDay: true,
-      // avatar: true,
-      // banner: true,
+      avatarUrl: true,
+      bannerUrl: true,
     },
   });
 };
