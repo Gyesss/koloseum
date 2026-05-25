@@ -12,6 +12,62 @@ export const findPostById = (postId) => {
   });
 };
 
+export const findUserById = (userId) => {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+
+    select: {
+      id: true,
+
+      avatarUrl: true,
+      avatarPath: true,
+
+      bannerUrl: true,
+      bannerPath: true,
+    },
+  });
+};
+
+export const updateUserMedia = (id, data) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+    select: {
+      id: true,
+      avatarUrl: true,
+      bannerUrl: true,
+    },
+  });
+};
+
+export const findEventById = (eventId) => {
+  return prisma.event.findUnique({
+    where: {
+      id: eventId,
+    },
+
+    select: {
+      id: true,
+
+      bannerUrl: true,
+      bannerPath: true,
+    },
+  });
+};
+
+export const updateEventMedia = (id, data) => {
+  return prisma.event.update({
+    where: { id },
+    data,
+    select: {
+      id: true,
+      bannerUrl: true,
+    },
+  });
+};
+
 export const countMediaByPostId = (postId) => {
   return prisma.media.count({
     where: {
@@ -46,6 +102,74 @@ export const createMedia = (postId, data) => {
       size: true,
 
       createdAt: true,
+    },
+  });
+};
+
+export const updateUserAvatar = (userId, data) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+
+    data: {
+      avatarUrl: data.url,
+      avatarPath: data.path,
+    },
+
+    select: {
+      id: true,
+
+      username: true,
+      fullName: true,
+
+      avatarUrl: true,
+      avatarPath: true,
+    },
+  });
+};
+
+export const updateUserBanner = (userId, data) => {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+
+    data: {
+      bannerUrl: data.url,
+      bannerPath: data.path,
+    },
+
+    select: {
+      id: true,
+
+      username: true,
+      fullName: true,
+
+      bannerUrl: true,
+      bannerPath: true,
+    },
+  });
+};
+
+export const updateEventBanner = (eventId, data) => {
+  return prisma.event.update({
+    where: {
+      id: eventId,
+    },
+
+    data: {
+      bannerUrl: data.url,
+      bannerPath: data.path,
+    },
+
+    select: {
+      id: true,
+
+      name: true,
+
+      bannerUrl: true,
+      bannerPath: true,
     },
   });
 };

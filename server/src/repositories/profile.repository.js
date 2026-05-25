@@ -18,14 +18,19 @@ export const updateById = (id, data) => {
       gender: true,
       birthDay: true,
       avatarUrl: true,
+      avatarPath: true,
       bannerUrl: true,
+      bannerPath: true,
     },
   });
 };
 
 export const findById = (id) => {
   return prisma.user.findUnique({
-    where: { id },
+    where: {
+      id,
+    },
+
     select: {
       id: true,
       username: true,
@@ -35,7 +40,9 @@ export const findById = (id) => {
       gender: true,
       birthDay: true,
       avatarUrl: true,
+      avatarPath: true,
       bannerUrl: true,
+      bannerPath: true,
     },
   });
 };

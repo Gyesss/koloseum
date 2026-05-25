@@ -19,6 +19,8 @@ export const createEvent = (data, userId) => {
       startAt: true,
       endAt: true,
       mood: true,
+      bannerUrl: true,
+      bannerPath: true,
       createdAt: true,
     },
   });
@@ -34,8 +36,8 @@ export const findEvents = () => {
       startAt: true,
       endAt: true,
       mood: true,
-      createdAt: true,
       bannerUrl: true,
+      createdAt: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -45,7 +47,10 @@ export const findEvents = () => {
 
 export const findEventById = (id) => {
   return prisma.event.findUnique({
-    where: { id },
+    where: {
+      id,
+    },
+
     include: {
       users: {
         select: {
@@ -64,7 +69,10 @@ export const findEventById = (id) => {
 
 export const updateEventById = (id, data) => {
   return prisma.event.update({
-    where: { id },
+    where: {
+      id,
+    },
+
     data,
     select: {
       id: true,
@@ -75,14 +83,17 @@ export const updateEventById = (id, data) => {
       startAt: true,
       endAt: true,
       mood: true,
-      updatedAt: true,
       bannerUrl: true,
+      bannerPath: true,
+      updatedAt: true,
     },
   });
 };
 
 export const deleteEventById = (id) => {
   return prisma.event.delete({
-    where: { id },
+    where: {
+      id,
+    },
   });
 };
