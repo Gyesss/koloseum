@@ -20,4 +20,4 @@ router.use("/invitation", invitationRoute);
 
 export default router;
 
-// NOTE: Untuk sekarang, Role tersimpan di Payload JWT sehingga ketika seorang user update role, harus relog untuk mendapatkan perubahan
+// NOTE: JWT menyimpan User Payload dan jika ada auth row(s) yang berubah, payload baru dibutuhkan.

@@ -14,8 +14,6 @@ export const login = async (data) => {
   return response.data;
 };
 
-// CREATE LOGOUT LATER...
-
 export const getMe = async () => {
   const response = await api.get("/auth/me");
 

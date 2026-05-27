@@ -11,7 +11,6 @@ const router = Router();
 router.get("/", controller.getEvents);
 router.get("/:id", controller.getEventById);
 
-// ADMIN + ORGANIZER only
 router.post(
   "/",
   auth,
