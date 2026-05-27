@@ -20,8 +20,8 @@ export default function AuthProvider({ children }) {
       }
 
       try {
-        const data = await getMe();
-        setUser(data.user);
+        const response = await getMe();
+        setUser(response.data);
       } catch (error) {
         console.error("Fetch profile failed:", error);
         localStorage.removeItem("token");
@@ -36,13 +36,13 @@ export default function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (credentials) => {
-    const data = await apiLogin(credentials);
+    const response = await apiLogin(credentials);
 
-    localStorage.setItem("token", data.token);
-    setToken(data.token);
+    localStorage.setItem("token", response.data.token);
+    setToken(response.data.token);
 
     const profile = await getMe();
-    setUser(profile.user);
+    setUser(profile.data);
   };
 
   const register = async (form) => {
