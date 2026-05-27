@@ -1,1 +1,18 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+@theme {
+  --color-brand: #b69463;
+  --color-background: #ffffff;
+  --color-surface: #fffaf2;
+  --color-border: #dcc8a6;
+  --color-text: #44403c;
+  --color-text-soft: #78716c;
+  --color-accent: #d6b98c;
+
+  --font-heading: "Cormorant Garamond", serif;
+  --font-body: "Inter", sans-serif;
+
+  --radius-base: 1rem;
+  --radius-card: 1.25rem;
+}
