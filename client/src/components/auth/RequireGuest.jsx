@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
-function RequireGuest({ children }) {
+function RequireGuest() {
   const { user, loading } = useAuth();
 
   if (loading) return null;
@@ -10,7 +10,7 @@ function RequireGuest({ children }) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return children;
+  return <Outlet />;
 }
 
 export default RequireGuest;

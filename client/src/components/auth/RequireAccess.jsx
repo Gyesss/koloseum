@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
-function RequireRole({ roles }) {
+function RequireAccess({ roles }) {
   const { user, loading } = useAuth();
 
   if (loading) return null;
@@ -17,4 +17,4 @@ function RequireRole({ roles }) {
   return <Outlet />;
 }
 
-export default RequireRole;
+export default RequireAccess;
