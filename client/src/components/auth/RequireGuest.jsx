@@ -7,7 +7,7 @@ function RequireGuest() {
   if (loading) return null;
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
