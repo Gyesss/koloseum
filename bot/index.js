@@ -48,7 +48,6 @@ async function startBot() {
       isReady = false;
 
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
-
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
       console.log("❌ BOT DISCONNECTED");
@@ -65,7 +64,7 @@ async function startBot() {
 
 /**
  * ======================
- * SEND INVITATION API
+ * SEND INVITATION API (FIXED)
  * ======================
  */
 app.post("/send-invitation", async (req, res) => {
@@ -87,44 +86,52 @@ app.post("/send-invitation", async (req, res) => {
     });
   }
 
-  try {
-    for (const phone of phones) {
-      const jid = phone.replace(/\D/g, "") + "@s.whatsapp.net";
+  // IMPORTANT: respond immediately
+  res.status(202).json({
+    success: true,
+    message: "Invitation queued",
+  });
 
-      console.log("📤 Sending to:", jid);
+  // background processing (non-blocking HTTP)
+  setImmediate(async () => {
+    try {
+      console.log("🚀 Processing invitations...");
 
-      const message = `
-🎉 *UNDANGAN ACARA*
+      for (const phone of phones) {
+        try {
+          const jid = phone.replace(/\D/g, "") + "@s.whatsapp.net";
+
+          console.log("📤 Sending to:", jid);
+
+          const message = `
+🎉 *Event Invitation*
 
 *${event.name}*
 ${event.tagline}
 
+> ${event.description}
+
 📍 ${event.location}
-🕒 ${new Date(event.startAt).toLocaleString("id-ID")} - ${new Date(
-        event.endAt,
-      ).toLocaleString("id-ID")}
+🕛 From ${new Date(event.startAt).toLocaleString("id-ID")}
+🕒 To ${new Date(event.endAt).toLocaleString("id-ID")}
 
 📄 ${content}
-      `.trim();
+          `.trim();
 
-      await sock.sendMessage(jid, {
-        image: event.bannerUrl ? { url: event.bannerUrl } : undefined,
-        caption: message,
-      });
+          await sock.sendMessage(jid, {
+            image: event.bannerUrl ? { url: event.bannerUrl } : undefined,
+            caption: message,
+          });
+        } catch (err) {
+          console.log("❌ FAILED SEND TO:", phone, err.message);
+        }
+      }
+
+      console.log("✅ All invitations processed");
+    } catch (err) {
+      console.log("❌ BACKGROUND ERROR:", err);
     }
-
-    return res.json({
-      success: true,
-      message: "Messages sent",
-    });
-  } catch (err) {
-    console.log("❌ SEND ERROR:", err);
-
-    return res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
+  });
 });
 
 /**

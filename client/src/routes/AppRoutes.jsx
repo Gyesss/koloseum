@@ -20,6 +20,7 @@ import EventsIndex from "../pages/events/EventsIndex";
 import EventDetail from "../pages/events/EventDetail";
 import CreateEvent from "../pages/events/CreateEvent";
 import EditEvent from "../pages/events/EditEvent";
+import EventInvitation from "../pages/events/EventInvitation";
 
 import PostsIndex from "../pages/posts/PostsIndex";
 import PostDetail from "../pages/posts/PostDetail";
@@ -60,6 +61,7 @@ function AppRoutes() {
             <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
               <Route path="create" element={<CreateEvent />} />
               <Route path=":eventId/edit" element={<EditEvent />} />
+              <Route path=":eventId/invitation" element={<EventInvitation />} />
             </Route>
           </Route>
 

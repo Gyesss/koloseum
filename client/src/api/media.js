@@ -3,13 +3,13 @@ import api from "./client";
 // key => media
 
 export const createMediaPost = async (postId, formData) => {
-  const response = await api.post(`/media/posts/${postId}`, formData);
+  const response = await api.post(`/media/post/${postId}`, formData);
 
   return response.data;
 };
 
 export const createEventBanner = async (eventId, formData) => {
-  const response = await api.post(`/media/events/${eventId}/banner`, formData);
+  const response = await api.post(`/media/event/${eventId}/banner`, formData);
 
   return response.data;
 };
