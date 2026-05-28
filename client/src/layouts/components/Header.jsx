@@ -8,6 +8,7 @@ import {
   faCompass,
   faCalendarDays,
   faBell,
+  faRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
 
 import Logo from "../../assets/koloseum-logo.svg";
@@ -127,39 +128,65 @@ function NavItem({ to, icon, label, notificationCount = 0 }) {
 }
 
 function ProfileNavItem({ user, initials }) {
+  const isLoggedIn = !!user;
+
   return (
     <NavLink
-      to="/profile"
+      to={isLoggedIn ? "/profile" : "/login"}
       className={({ isActive }) =>
         clsx(
           "relative flex items-center overflow-hidden",
           "rounded-base transition-all duration-300",
           "h-11 w-11 justify-center",
           "md:w-full md:justify-start",
-
-          isActive ? "bg-brand text-white" : "text-text hover:bg-brand/10",
+          isActive
+            ? "bg-brand text-white shadow-sm"
+            : "text-text hover:bg-brand/10",
         )
       }
     >
-      {/* Avatar */}
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center">
-        {user?.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt={user.fullName}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-        ) : (
-          <div className="bg-brand flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold text-white">
-            {initials}
+      {({ isActive }) => (
+        <>
+          {/* Avatar / Login Icon */}
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center">
+            {isLoggedIn ? (
+              user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.fullName}
+                  className={clsx(
+                    "h-8 w-8 rounded-full object-cover",
+                    isActive && "ring-2 ring-white/60",
+                  )}
+                />
+              ) : (
+                <div
+                  className={clsx(
+                    "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold",
+                    isActive ? "text-brand bg-white" : "bg-brand text-white",
+                  )}
+                >
+                  {initials}
+                </div>
+              )
+            ) : (
+              <div
+                className={clsx(
+                  "flex h-8 w-8 items-center justify-center rounded-full",
+                  !isActive && "bg-brand/10 text-brand",
+                )}
+              >
+                <FontAwesomeIcon icon={faRightToBracket} />
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Label */}
-      <span className="font-body hidden pr-5 text-sm font-medium whitespace-nowrap md:block md:opacity-0 md:transition-opacity md:duration-200 md:group-hover/header:opacity-100">
-        Profile
-      </span>
+          {/* Label */}
+          <span className="font-body hidden pr-5 text-sm font-medium whitespace-nowrap md:block md:opacity-0 md:transition-opacity md:duration-200 md:group-hover/header:opacity-100">
+            {isLoggedIn ? "Profile" : "Sign in"}
+          </span>
+        </>
+      )}
     </NavLink>
   );
 }

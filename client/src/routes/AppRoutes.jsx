@@ -7,6 +7,8 @@ import AuthLayout from "../layouts/AuthLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 import Home from "../pages/Home";
+import Privacy from "../pages/Privacy";
+import Terms from "../pages/terms";
 import Explore from "../pages/Explore";
 import Notifications from "../pages/notifications";
 import Profile from "../pages/Profile";
@@ -34,6 +36,8 @@ function AppRoutes() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route index element={<Home />} />
+          <Route path="privacy" element={<Privacy />} />
+          <Route path="terms" element={<Terms />} />
           <Route path="explore" element={<Explore />} />
           <Route element={<RequireAccess />}>
             <Route path="profile" element={<Profile />} />

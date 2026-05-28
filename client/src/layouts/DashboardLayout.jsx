@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import FloatingNav from "./components/FloatingNav";
 
 function DashboardLayout() {
   return (
@@ -11,6 +12,7 @@ function DashboardLayout() {
         <Outlet />
       </main>
       <Footer />
+      <FloatingNav />
     </>
   );
 }
