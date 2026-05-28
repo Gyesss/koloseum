@@ -11,7 +11,10 @@ import Privacy from "../pages/Privacy";
 import Terms from "../pages/terms";
 import Explore from "../pages/Explore";
 import Notifications from "../pages/notifications";
-import Profile from "../pages/Profile";
+
+import ProfileIndex from "../pages/profile/ProfileIndex";
+import EditProfile from "../pages/profile/EditProfile";
+import UserProfile from "../pages/profile/UserProfile";
 
 import EventsIndex from "../pages/events/EventsIndex";
 import EventDetail from "../pages/events/EventDetail";
@@ -40,8 +43,15 @@ function AppRoutes() {
           <Route path="terms" element={<Terms />} />
           <Route path="explore" element={<Explore />} />
           <Route element={<RequireAccess />}>
-            <Route path="profile" element={<Profile />} />
             <Route path="notifications" element={<Notifications />} />
+
+            <Route path="profile">
+              <Route index element={<ProfileIndex />} />
+              <Route path="edit" element={<EditProfile />} />
+            </Route>
+            <Route path="users">
+              <Route path=":userId" element={<UserProfile />} />
+            </Route>
           </Route>
 
           <Route path="events">
