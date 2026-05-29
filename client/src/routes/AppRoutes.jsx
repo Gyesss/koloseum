@@ -8,7 +8,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 
 import Home from "../pages/Home";
 import Privacy from "../pages/Privacy";
-import Terms from "../pages/terms";
+import Terms from "../pages/Terms";
 import Explore from "../pages/Explore";
 import Notifications from "../pages/notifications";
 
@@ -34,6 +34,8 @@ import Login from "../pages/Login";
 import Forbidden from "../pages/Forbidden";
 import NotFound from "../pages/NotFound";
 
+import Demo from "../pages/Demo"
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -43,6 +45,7 @@ function AppRoutes() {
           <Route path="privacy" element={<Privacy />} />
           <Route path="terms" element={<Terms />} />
           <Route path="explore" element={<Explore />} />
+          <Route path="demo" element={<Demo />} />
           <Route element={<RequireAccess />}>
             <Route path="notifications" element={<Notifications />} />
 
