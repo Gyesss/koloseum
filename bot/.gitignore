@@ -1,5 +1,6 @@
 .env
 node_modules
+auth_info
 
 # Editor directories and files
 .vscode/*
