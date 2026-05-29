@@ -9,18 +9,23 @@ const router = Router({ mergeParams: true });
 
 router.get("/", controller.getQnasByEventId);
 
-router.post("/", auth, authorize(["ADMIN", "ORGANIZER"]), controller.createQna);
+router.post(
+  "/",
+  auth(),
+  authorize(["ADMIN", "ORGANIZER"]),
+  controller.createQna,
+);
 
 router.patch(
   "/:qnaId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.updateQna,
 );
 
 router.delete(
   "/:qnaId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.deleteQna,
 );

@@ -7,7 +7,6 @@ export const createPost = async (eventId, ownerId, data) => {
       caption: data.caption,
       postType: data.postType,
       isFeatured: data.isFeatured || false,
-
       startAt: data.startAt,
       endAt: data.endAt,
 
@@ -49,8 +48,8 @@ export const createPost = async (eventId, ownerId, data) => {
   });
 };
 
-export const findPostsByEventId = (eventId) => {
-  return prisma.post.findMany({
+export const findPostsByEventId = async (eventId, userId) => {
+  const posts = await prisma.post.findMany({
     where: {
       eventId,
     },
@@ -86,6 +85,12 @@ export const findPostsByEventId = (eventId) => {
         },
       },
 
+      postLikes: {
+        select: {
+          userId: true,
+        },
+      },
+
       _count: {
         select: {
           postLikes: true,
@@ -94,10 +99,16 @@ export const findPostsByEventId = (eventId) => {
       },
     },
   });
+
+  return posts.map(({ postLikes, ...post }) => ({
+    ...post,
+
+    isLiked: userId ? postLikes.some((like) => like.userId === userId) : false,
+  }));
 };
 
-export const findPostById = (id) => {
-  return prisma.post.findUnique({
+export const findPostById = async (id, userId) => {
+  const post = await prisma.post.findUnique({
     where: {
       id,
     },
@@ -125,6 +136,12 @@ export const findPostById = (id) => {
         },
       },
 
+      postLikes: {
+        select: {
+          userId: true,
+        },
+      },
+
       _count: {
         select: {
           postLikes: true,
@@ -133,6 +150,18 @@ export const findPostById = (id) => {
       },
     },
   });
+
+  if (!post) {
+    return null;
+  }
+
+  const { postLikes, ...rest } = post;
+
+  return {
+    ...rest,
+
+    isLiked: userId ? postLikes.some((like) => like.userId === userId) : false,
+  };
 };
 
 export const updatePostById = (id, data) => {

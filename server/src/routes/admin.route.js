@@ -5,6 +5,6 @@ import { authorize } from "../middlewares/role.middleware.js";
 
 const router = Router();
 
-router.patch("/role", auth, authorize(["ADMIN"]), controller.updateUserRole);
+router.patch("/role", auth(), authorize(["ADMIN"]), controller.updateUserRole);
 
 export default router;

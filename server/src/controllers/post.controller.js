@@ -25,7 +25,9 @@ export const createPost = async (req, res) => {
 export const getPostsByEventId = async (req, res) => {
   const { eventId } = req.params;
 
-  const result = await service.getPostsByEventId(eventId);
+  const userId = req.user ? req.user.id : null;
+
+  const result = await service.getPostsByEventId(eventId, userId);
 
   return res.json({
     success: true,
@@ -36,7 +38,9 @@ export const getPostsByEventId = async (req, res) => {
 export const getPostById = async (req, res) => {
   const { eventId, postId } = req.params;
 
-  const result = await service.getPostById(eventId, postId);
+  const userId = req.user ? req.user.id : null;
+
+  const result = await service.getPostById(eventId, postId, userId);
 
   return res.json({
     success: true,

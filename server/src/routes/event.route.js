@@ -13,21 +13,21 @@ router.get("/:id", controller.getEventById);
 
 router.post(
   "/",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.createEvent,
 );
 
 router.patch(
   "/:id",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.updateEvent,
 );
 
 router.delete(
   "/:id",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.deleteEvent,
 );

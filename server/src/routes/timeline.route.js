@@ -11,21 +11,21 @@ router.get("/", controller.getTimelinesByEventId);
 
 router.post(
   "/",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.createTimeline,
 );
 
 router.patch(
   "/:timelineId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.updateTimeline,
 );
 
 router.delete(
   "/:timelineId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.deleteTimeline,
 );

@@ -12,28 +12,28 @@ const router = Router();
 
 router.post(
   "/post/:postId",
-  auth,
+  auth(),
   uploadPostMediaMiddleware.single("media"),
   uploadPostMediaController,
 );
 
 router.post(
   "/user/avatar",
-  auth,
+  auth(),
   uploadPostMediaMiddleware.single("media"),
   uploadUserAvatarController,
 );
 
 router.post(
   "/user/banner",
-  auth,
+  auth(),
   uploadPostMediaMiddleware.single("media"),
   uploadUserBannerController,
 );
 
 router.post(
   "/event/:eventId/banner",
-  auth,
+  auth(),
   uploadPostMediaMiddleware.single("media"),
   uploadEventBannerController,
 );

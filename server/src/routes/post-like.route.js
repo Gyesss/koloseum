@@ -6,7 +6,7 @@ const router = Router({
   mergeParams: true,
 });
 
-router.post("/", auth, controller.likePost);
-router.delete("/", auth, controller.unlikePost);
+router.post("/", auth(), controller.likePost);
+router.delete("/", auth(), controller.unlikePost);
 
 export default router;

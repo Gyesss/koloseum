@@ -7,10 +7,10 @@ const router = Router({
   mergeParams: true,
 });
 
-router.get("/", controller.getComments);
-router.post("/", auth, controller.createComment);
-router.patch("/:commentId", auth, controller.updateComment);
-router.delete("/:commentId", auth, controller.deleteComment);
+router.get("/", auth(false), controller.getComments);
+router.post("/", auth(), controller.createComment);
+router.patch("/:commentId", auth(), controller.updateComment);
+router.delete("/:commentId", auth(), controller.deleteComment);
 
 router.use("/:commentId/likes", commentLikeRoute);
 

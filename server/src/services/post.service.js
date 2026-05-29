@@ -25,20 +25,20 @@ export const createPost = async (eventId, user, data) => {
   return post;
 };
 
-export const getPostsByEventId = async (eventId) => {
+export const getPostsByEventId = async (eventId, userId) => {
   const event = await eventRepo.findEventById(eventId);
 
   if (!event) {
     throw new Error("Event not found");
   }
 
-  const posts = await postRepo.findPostsByEventId(eventId);
+  const posts = await postRepo.findPostsByEventId(eventId, userId);
 
   return posts;
 };
 
-export const getPostById = async (eventId, postId) => {
-  const post = await postRepo.findPostById(postId);
+export const getPostById = async (eventId, postId, userId) => {
+  const post = await postRepo.findPostById(postId, userId);
 
   if (!post) {
     throw new Error("Post not found");
@@ -73,7 +73,6 @@ export const updatePost = async (eventId, postId, user, data) => {
   }
 
   const nextStartAt = data.startAt || existing.startAt;
-
   const nextEndAt = data.endAt || existing.endAt;
 
   if (

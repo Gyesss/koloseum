@@ -6,7 +6,7 @@ const router = Router({
   mergeParams: true,
 });
 
-router.post("/", auth, controller.votePoll);
-router.delete("/", auth, controller.removeVote);
+router.post("/", auth(), controller.votePoll);
+router.delete("/", auth(), controller.removeVote);
 
 export default router;

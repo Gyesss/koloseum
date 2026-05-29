@@ -1,5 +1,4 @@
 import * as service from "../services/comment.service.js";
-
 import * as validator from "../validators/comment.validator.js";
 
 export const createComment = async (req, res) => {
@@ -26,7 +25,9 @@ export const createComment = async (req, res) => {
 export const getComments = async (req, res) => {
   const { postId } = req.params;
 
-  const result = await service.getComments(postId);
+  const userId = req.user?.id ?? null;
+
+  const result = await service.getComments(postId, userId);
 
   return res.json({
     success: true,

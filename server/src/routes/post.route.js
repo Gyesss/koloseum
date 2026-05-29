@@ -9,27 +9,27 @@ import pollRoute from "./poll.route.js";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", controller.getPostsByEventId);
+router.get("/", auth(false), controller.getPostsByEventId);
 
-router.get("/:postId", controller.getPostById);
+router.get("/:postId", auth(false), controller.getPostById);
 
 router.post(
   "/",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.createPost,
 );
 
 router.patch(
   "/:postId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.updatePost,
 );
 
 router.delete(
   "/:postId",
-  auth,
+  auth(),
   authorize(["ADMIN", "ORGANIZER"]),
   controller.deletePost,
 );

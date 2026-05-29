@@ -5,6 +5,6 @@ import { sendInvitation } from "../controllers/invitation.controller.js";
 
 const router = Router();
 
-router.post("/", auth, authorize(["ADMIN"]), sendInvitation);
+router.post("/", auth(), authorize(["ADMIN"]), sendInvitation);
 
 export default router;

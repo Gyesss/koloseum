@@ -8,8 +8,8 @@ const router = Router({
 });
 
 router.get("/", controller.getPoll);
-router.post("/", auth, controller.createPoll);
-router.delete("/", auth, controller.deletePoll);
+router.post("/", auth(), controller.createPoll);
+router.delete("/", auth(), controller.deletePoll);
 
 router.use("/votes", voteRoute);
 

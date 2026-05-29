@@ -5,8 +5,8 @@ import { auth } from "../middlewares/auth.middleware.js";
 const router = Router({ mergeParams: true });
 
 router.get("/", controller.getCollaborators);
-router.post("/", auth, controller.inviteCollaborator);
-router.patch("/accept", auth, controller.acceptInvitation);
-router.delete("/:userId", auth, controller.removeCollaborator);
+router.post("/", auth(), controller.inviteCollaborator);
+router.patch("/accept", auth(), controller.acceptInvitation);
+router.delete("/:userId", auth(), controller.removeCollaborator);
 
 export default router;
