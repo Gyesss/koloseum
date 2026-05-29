@@ -34,7 +34,7 @@ import Login from "../pages/Login";
 import Forbidden from "../pages/Forbidden";
 import NotFound from "../pages/NotFound";
 
-import Demo from "../pages/Demo"
+import Demo from "../pages/Demo";
 
 function AppRoutes() {
   return (
