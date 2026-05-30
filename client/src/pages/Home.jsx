@@ -79,9 +79,10 @@ export default function Home() {
 
   const likedPosts = useMemo(() => {
     return posts
-      .filter((post) => post.isLiked === true)
+      .filter((post) => post.isLiked === true && !post.isDraft)
       .map((post) => ({
         ...post,
+        poll: post.poll || null,
         event: { name: priorityResult?.data?.name || "Koloseum Arena" },
       }));
   }, [posts, priorityResult]);
@@ -114,8 +115,8 @@ export default function Home() {
             <span className="text-brand">Historic Events</span>
           </h1>
           <p className="text-surface/70 mt-4 max-w-2xl text-base">
-            Orchestrate schedules, participate in verified community polls, and
-            access unalterable event memorial repositories.
+            Event schedules, participate in verified community polls, and access
+            unalterable event memorial repositories.
           </p>
 
           {/* DYNAMIC INTEGRATED NAVIGATION MATRIX HUB */}
@@ -295,11 +296,7 @@ export default function Home() {
                   {likedPosts.map((post) => (
                     /* break-inside-avoid mencegah kartu terpotong di tengah kolom */
                     <div key={post.id} className="break-inside-avoid">
-                      <PostCard
-                        post={post}
-                        poll={post.poll}
-                        onPostUpdate={handlePostUpdate}
-                      />
+                      <PostCard post={post} onPostUpdate={handlePostUpdate} />
                     </div>
                   ))}
                 </div>

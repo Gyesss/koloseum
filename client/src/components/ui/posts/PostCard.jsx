@@ -1,23 +1,18 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faComment,
   faHeart,
   faShareNodes,
 } from "@fortawesome/free-solid-svg-icons";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useNavigate } from "react-router-dom";
-
 import PostFilmFrame from "./PostFilmFrame";
 import PostMediaGrid from "./PostMediaGrid";
 import PostMeta from "./PostMeta";
 import PostPollTeaser from "./PostPollTeaser";
-
 import { likePost, unlikePost } from "../../../api/post-likes";
 import useAuth from "../../../hooks/useAuth";
-
-import { useState } from "react";
-
 export default function PostCard({
   post,
   poll,
@@ -32,7 +27,8 @@ export default function PostCard({
   const [likesCount, setLikesCount] = useState(post?._count?.postLikes || 0);
 
   const commentsCount = post?._count?.comments || 0;
-
+  const activePoll =
+    poll || post?.poll || (post?.postType === "POLL" ? post : null);
   const handleNavigate = () => {
     navigate(`/posts/${post.id}`);
   };
@@ -107,8 +103,7 @@ export default function PostCard({
 
         <div className="px-1 pt-6 pb-2">
           <PostMeta post={post} />
-          <PostPollTeaser poll={poll} />
-
+          <PostPollTeaser poll={activePoll} />
           <div className="mt-5 flex items-center justify-between border-t border-black/10 pt-4">
             <div className="flex items-center gap-5">
               <button

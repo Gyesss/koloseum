@@ -105,6 +105,7 @@ export default function Explore() {
       : "Koloseum Arena";
 
     return posts
+      .filter((post) => !post.isDraft)
       .map((post) => ({
         ...post,
         event: { name: currentEventName },

@@ -21,31 +21,26 @@ export default function CreatePost() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Normalized Post Form States (Aligned with createPostSchema)
   const [events, setEvents] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState("");
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
-  const [postType, setPostType] = useState("ANNOUNCEMENT");
+  const [postType, setPostType] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
 
-  // Normalized Poll Form States (Aligned with createPollSchema)
   const [enablePoll, setEnablePoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollMaxChoices, setPollMaxChoices] = useState(1);
-  const [pollOptions, setPollOptions] = useState(["", ""]); // Aligned with plain string arrays
+  const [pollOptions, setPollOptions] = useState(["", ""]);
 
-  // Media Ledger States
   const [mediaFiles, setMediaFiles] = useState([]);
   const [existingMedia, setExistingMedia] = useState([]);
 
-  // Lifecycle & Layout Management Trackers
   const [activeDraftId, setActiveDraftId] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  // 1. Fetch Arena Events & Synchronize Draft Records
   useEffect(() => {
     async function syncAndLoadData() {
       try {
@@ -82,7 +77,7 @@ export default function CreatePost() {
           setSelectedEventId(eventWithDraftId);
           setTitle(foundDraft.title || "");
           setCaption(foundDraft.caption || "");
-          setPostType(foundDraft.postType || "ANNOUNCEMENT");
+          setPostType(foundDraft.postType || "");
           setIsFeatured(foundDraft.isFeatured || false);
           setExistingMedia(foundDraft.media || []);
 
@@ -111,7 +106,6 @@ export default function CreatePost() {
     if (user?.id) syncAndLoadData();
   }, [user]);
 
-  // 2. Poll State Mutators
   const handleOptionChange = (index, value) => {
     const updated = [...pollOptions];
     updated[index] = value;
@@ -120,14 +114,12 @@ export default function CreatePost() {
 
   const addPollOption = () => {
     if (pollOptions.length < 20) {
-      // Enforces schema constraint .max(20)
       setPollOptions([...pollOptions, ""]);
     }
   };
 
   const removePollOption = (index) => {
     if (pollOptions.length > 2) {
-      // Enforces schema constraint .min(2)
       setPollOptions(pollOptions.filter((_, i) => i !== index));
     }
   };
@@ -138,11 +130,9 @@ export default function CreatePost() {
     }
   };
 
-  // 3. Normalized Payload Pipeline Submission
   const handlePublishPost = async (e, shouldBeDraft = false) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
-    // Quick validation to safe-check matching minimal criteria before API dispatch
     if (title.trim().length < 3)
       return alert("Title must be at least 3 characters long.");
     if (!selectedEventId) return alert("Please specify a target event.");
@@ -154,20 +144,20 @@ export default function CreatePost() {
       const postPayload = {
         title: title.trim(),
         caption: caption.trim() || undefined,
-        postType,
+        postType: postType || undefined,
         isFeatured,
         isDraft: shouldBeDraft,
       };
 
-      // Ensure base post transaction finishes first
       if (!postId) {
         const newPostRes = await createPost(selectedEventId, postPayload);
         postId = newPostRes.data?.id || newPostRes.id;
+        setActiveDraftId(postId);
+        await updatePost(selectedEventId, postId, postPayload);
       } else {
         await updatePost(selectedEventId, postId, postPayload);
       }
 
-      // Upload media payload files if staged
       if (mediaFiles.length > 0) {
         for (const file of mediaFiles) {
           const formData = new FormData();
@@ -176,14 +166,12 @@ export default function CreatePost() {
         }
       }
 
-      // Handle Poll validation and submission
       if (enablePoll) {
         const cleanedOptions = pollOptions
           .map((opt) => opt.trim())
           .filter((opt) => opt !== "");
         const parsedMaxChoices = parseInt(pollMaxChoices, 10) || 1;
 
-        // Validation mirror to match superRefine rules inside Zod
         if (cleanedOptions.length < 2) {
           alert("Poll requires at least 2 non-empty unique options.");
           setSubmitting(false);
@@ -214,9 +202,9 @@ export default function CreatePost() {
         await createPoll(selectedEventId, postId, {
           question: pollQuestion.trim(),
           maxChoices: parsedMaxChoices,
-          options: cleanedOptions, // Normalized flat string array matching your sample payload
+          options: cleanedOptions,
         });
-      } else if (activeDraftId && !enablePoll) {
+      } else if (postId && !enablePoll) {
         try {
           await deletePoll(selectedEventId, postId);
         } catch {
@@ -224,7 +212,13 @@ export default function CreatePost() {
         }
       }
 
-      navigate(shouldBeDraft ? "/explore" : `/events/${selectedEventId}`);
+      if (shouldBeDraft) {
+        setActiveDraftId(postId);
+        navigate("/explore");
+      } else {
+        setActiveDraftId(null);
+        navigate(`/events/${selectedEventId}`);
+      }
     } catch (error) {
       console.error("Transaction deployment execution failed:", error);
       alert("Failed to securely broadcast post records to the cloud server.");
@@ -233,7 +227,6 @@ export default function CreatePost() {
     }
   };
 
-  // 4. Symmetrical Sessional Interrupt Cancellation Protocols
   const handleCancelClick = () => {
     setShowCancelModal(true);
   };
@@ -246,9 +239,30 @@ export default function CreatePost() {
   const discardDraftAndExit = async () => {
     setShowCancelModal(false);
     try {
-      if (activeDraftId && selectedEventId) {
-        setSubmitting(true);
-        await deletePost(selectedEventId, activeDraftId);
+      setSubmitting(true);
+
+      let targetDraftId = activeDraftId;
+      let targetEventId = selectedEventId;
+
+      if (!targetDraftId || !targetEventId) {
+        for (const ev of events) {
+          const postsResponse = await getPosts(ev.id);
+          const postList = postsResponse.data || [];
+          const backupDraft = postList.find(
+            (p) =>
+              p.isDraft === true &&
+              p.collaborators?.some((c) => c.isOwner && c.userId === user?.id),
+          );
+          if (backupDraft) {
+            targetDraftId = backupDraft.id;
+            targetEventId = ev.id;
+            break;
+          }
+        }
+      }
+
+      if (targetDraftId && targetEventId) {
+        await deletePost(targetEventId, targetDraftId);
       }
       navigate("/explore");
     } catch (err) {
@@ -270,7 +284,6 @@ export default function CreatePost() {
   return (
     <div className="bg-background text-text font-body min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto max-w-3xl">
-        {/* BACK ACTION */}
         <button
           type="button"
           onClick={handleCancelClick}
@@ -283,7 +296,6 @@ export default function CreatePost() {
           <span>Back to Explore</span>
         </button>
 
-        {/* COMPONENT TITLE */}
         <div className="mb-8">
           <h1 className="font-heading text-text text-4xl font-bold tracking-tight sm:text-5xl">
             {activeDraftId ? "Resume Saved Draft" : "Orchestrate New Post"}
@@ -294,13 +306,11 @@ export default function CreatePost() {
           </p>
         </div>
 
-        {/* WORK BENCH FORM */}
         <form
           onSubmit={(e) => handlePublishPost(e, false)}
           className="space-y-6"
         >
           <div className="border-border bg-surface rounded-card space-y-5 border p-6 shadow-xs">
-            {/* EVENT ATTACHMENT CONTEXT SELECTOR */}
             <div className="flex flex-col gap-2">
               <label className="text-text-soft text-xs font-bold tracking-wider uppercase">
                 Target Arena Event
@@ -324,7 +334,6 @@ export default function CreatePost() {
               )}
             </div>
 
-            {/* INPUT CONTROLS */}
             <div className="flex flex-col gap-2">
               <label className="text-text-soft text-xs font-bold tracking-wider uppercase">
                 Post Title
@@ -352,7 +361,6 @@ export default function CreatePost() {
               />
             </div>
 
-            {/* TYPE MATRIX FIELD CONTROLS */}
             <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
               <div className="flex flex-col gap-2">
                 <label className="text-text-soft text-xs font-bold tracking-wider uppercase">
@@ -363,6 +371,7 @@ export default function CreatePost() {
                   onChange={(e) => setPostType(e.target.value)}
                   className="border-border bg-background text-text rounded-card focus:border-brand cursor-pointer border px-4 py-3 text-sm font-medium transition outline-none"
                 >
+                  <option value="">Select a category (Optional)</option>
                   <option value="ANNOUNCEMENT">ANNOUNCEMENT</option>
                   <option value="PROJECT">PROJECT</option>
                   <option value="REWARD">REWARD</option>
@@ -387,7 +396,6 @@ export default function CreatePost() {
             </div>
           </div>
 
-          {/* FILES UPLOAD SECTION */}
           <div className="border-border bg-surface rounded-card space-y-4 border p-6 shadow-xs">
             <label className="text-text-soft block text-xs font-bold tracking-wider uppercase">
               Media Documents
@@ -451,7 +459,6 @@ export default function CreatePost() {
             )}
           </div>
 
-          {/* POLL MATRIX LAYER SECTION */}
           <div className="border-border bg-surface rounded-card space-y-5 border p-6 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -548,7 +555,6 @@ export default function CreatePost() {
             )}
           </div>
 
-          {/* LOWER FORM SUBMIT ACTIONS */}
           <div className="flex flex-col items-center justify-end gap-3 pt-4 sm:flex-row">
             <button
               type="button"
@@ -569,7 +575,6 @@ export default function CreatePost() {
           </div>
         </form>
 
-        {/* MODAL CANCEL INTERRUPT */}
         {showCancelModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-xs">
             <div className="border-border bg-surface rounded-card w-full max-w-md border p-6 shadow-2xl">
