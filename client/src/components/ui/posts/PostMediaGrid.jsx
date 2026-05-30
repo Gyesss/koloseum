@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import clsx from "clsx";
 
 import {
@@ -14,8 +15,27 @@ function MediaItem({ media, className, overlay }) {
   const isImage = isImageFile(media?.mimeType);
   const isVideo = isVideoFile(media?.mimeType);
 
+  const videoRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
   return (
-    <div className={clsx("relative overflow-hidden bg-stone-200", className)}>
+    <div
+      className={clsx("relative overflow-hidden bg-stone-200", className)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {isImage && (
         <img
           src={media.url}
@@ -27,10 +47,15 @@ function MediaItem({ media, className, overlay }) {
 
       {isVideo && (
         <>
-          <video src={media.url} className="h-full w-full object-cover" />
+          <video
+            ref={videoRef}
+            src={media.url}
+            muted
+            playsInline
+            className="h-full w-full object-cover"
+          />
 
-          {/* VIDEO INDICATOR */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 will-change-transform">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white">
               <FontAwesomeIcon icon={faPlay} className="ml-0.5 text-xs" />
             </div>

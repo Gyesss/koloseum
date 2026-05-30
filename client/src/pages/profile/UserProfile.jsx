@@ -110,7 +110,26 @@ export default function UserProfile() {
 
   return (
     <div className="bg-background min-h-dvh px-6 py-20">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full">
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faUser} />
+              <span>User Profile</span>
+            </div>
+
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
+              View Member Profile
+            </h1>
+
+            <p className="text-text-soft mt-4 w-full text-base leading-7">
+              See user details, bio, roles, and other shared information of this
+              active Koloseum community member.
+            </p>
+          </div>
+        </div>
+
         <div className="bg-surface border-border rounded-card overflow-hidden border shadow-sm">
           {/* Top Accent */}
           <div className="from-border via-brand to-accent h-2 w-full bg-linear-to-r" />

@@ -34,7 +34,26 @@ export default function ProfileIndex() {
 
   return (
     <div className="bg-background min-h-dvh px-6 py-10 md:px-10">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full">
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faUser} />
+              <span>Profile</span>
+            </div>
+
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
+              My Profile
+            </h1>
+
+            <p className="text-text-soft mt-4 w-full text-base leading-7">
+              Manage your personal information, contact details, and platform
+              roles within the Koloseum network.
+            </p>
+          </div>
+        </div>
+
         {/* Banner */}
         <div className="bg-surface border-border rounded-card overflow-hidden border shadow-sm">
           <div className="from-border via-brand to-accent h-2 w-full bg-linear-to-r" />

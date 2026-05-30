@@ -90,18 +90,19 @@ export default function EventsIndex() {
   return (
     <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
-        {/* Header */}
+        {/* HEADER */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-brand mb-2 text-sm font-semibold tracking-[0.3em] uppercase">
-              Events
-            </p>
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faCalendarDays} />
+              <span>Events</span>
+            </div>
 
-            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight">
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
               Discover Events
             </h1>
 
-            <p className="text-text-soft mt-3 max-w-2xl text-base leading-7">
+            <p className="text-text-soft mt-4 max-w-2xl text-base leading-7">
               Explore ongoing, upcoming, and archived experiences across the
               Koloseum network.
             </p>
@@ -110,7 +111,7 @@ export default function EventsIndex() {
           {canManage && (
             <Link
               to="/events/create"
-              className="bg-brand rounded-base inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+              className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 sm:self-auto"
             >
               <FontAwesomeIcon icon={faPlus} />
               Create Event

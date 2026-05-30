@@ -76,19 +76,22 @@ export default function EventInvitation() {
   return (
     <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-        {/* Header */}
-        <div>
-          <p className="text-brand mb-2 text-sm font-semibold tracking-[0.3em] uppercase">
-            Invitations
-          </p>
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full">
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faEnvelope} />
+              <span>Invitations</span>
+            </div>
 
-          <h1 className="font-heading text-text text-4xl font-semibold tracking-tight">
-            Invite Guests
-          </h1>
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
+              Invite Guests
+            </h1>
 
-          <p className="text-text-soft mt-3 max-w-2xl leading-7">
-            Send invitations directly to your guests using phone numbers.
-          </p>
+            <p className="text-text-soft mt-4 w-full text-base leading-7">
+              Send invitations directly to your guests using phone numbers.
+            </p>
+          </div>
         </div>
 
         {/* Form */}
@@ -109,9 +112,7 @@ export default function EventInvitation() {
               onChange={handleChange}
               required
               rows={8}
-              placeholder={`62123456789
-62987654321
-62192837465`}
+              placeholder={`62123456789\n62987654321\n62192837465`}
               className="bg-background border-border rounded-base text-text focus:border-brand w-full resize-none border px-4 py-3 font-mono outline-none"
             />
 

@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCompass,
   faMagnifyingGlass,
+  faPlus,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -134,8 +135,8 @@ export default function Explore() {
     <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-450 flex-col gap-8">
         {/* HEADER */}
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-2xl">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
             <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
               <FontAwesomeIcon icon={faCompass} />
               <span>Explore</span>
@@ -145,42 +146,50 @@ export default function Explore() {
               Discover Creative Posts
             </h1>
 
-            <p className="text-text-soft mt-4 text-base leading-7">
+            <p className="text-text-soft mt-4 max-w-2xl text-base leading-7">
               Browse featured announcements, rewards, and projects from active
               Koloseum events.
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-3 xl:max-w-md">
-            {/* SEARCH */}
-            <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-4 py-3">
-              <FontAwesomeIcon
-                icon={faMagnifyingGlass}
-                className="text-text-soft"
-              />
+          <Link
+            to="/posts/create"
+            className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 sm:self-auto"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Create Post
+          </Link>
+        </div>
 
-              <input
-                type="text"
-                placeholder="Search posts, captions, or events..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="text-text placeholder:text-text-soft w-full bg-transparent text-sm outline-none"
-              />
-            </div>
+        <div className="flex w-full flex-col gap-3 xl:max-w-md">
+          {/* SEARCH */}
+          <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-4 py-3">
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className="text-text-soft"
+            />
 
-            {/* EVENT SELECT */}
-            <select
-              value={selectedEventId}
-              onChange={(event) => handleEventChange(event.target.value)}
-              className="border-border bg-surface text-text rounded-card border px-4 py-3 text-sm outline-none"
-            >
-              {events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              placeholder="Search posts, captions, or events..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="text-text placeholder:text-text-soft w-full bg-transparent text-sm outline-none"
+            />
           </div>
+
+          {/* EVENT SELECT */}
+          <select
+            value={selectedEventId}
+            onChange={(event) => handleEventChange(event.target.value)}
+            className="border-border bg-surface text-text rounded-card border px-4 py-3 text-sm outline-none"
+          >
+            {events.map((event) => (
+              <option key={event.id} value={event.id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* FEATURED */}
@@ -206,17 +215,19 @@ export default function Explore() {
         {loading ? (
           <div
             className={clsx(
-              "grid gap-4",
-              "grid-cols-2",
-              "md:grid-cols-3",
-              "xl:grid-cols-5",
-              "2xl:grid-cols-6",
+              "gap-4 [column-fill:balance]",
+              "columns-1",
+              "sm:columns-2",
+              "md:columns-2",
+              "lg:columns-3",
+              "xl:columns-5",
+              "2xl:columns-6",
             )}
           >
             {Array.from({ length: 12 }).map((_, index) => (
               <div
                 key={index}
-                className="border-border bg-surface rounded-4xl border p-3"
+                className="border-border bg-surface mb-4 break-inside-avoid rounded-4xl border p-3"
               >
                 <div className="bg-border aspect-4/5 animate-pulse rounded-sm" />
 
@@ -231,20 +242,19 @@ export default function Explore() {
         ) : filteredPosts.length > 0 ? (
           <div
             className={clsx(
-              "grid gap-4",
-              "grid-cols-2",
-              "md:grid-cols-3",
-              "xl:grid-cols-5",
-              "2xl:grid-cols-6",
+              "gap-4 [column-fill:balance]",
+              "columns-1",
+              "sm:columns-2",
+              "md:columns-2",
+              "lg:columns-3",
+              "xl:columns-5",
+              "2xl:columns-6",
             )}
           >
             {filteredPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                compact
-                onPostUpdate={handlePostUpdate}
-              />
+              <div key={post.id} className="mb-4 break-inside-avoid">
+                <PostCard post={post} compact onPostUpdate={handlePostUpdate} />
+              </div>
             ))}
           </div>
         ) : (

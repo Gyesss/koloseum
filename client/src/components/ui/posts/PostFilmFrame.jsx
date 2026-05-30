@@ -21,7 +21,7 @@ export default function PostFilmFrame({
         if (to) navigate(to);
       }}
       className={clsx(
-        "group relative cursor-pointer",
+        "group relative h-fit cursor-pointer",
 
         className,
       )}

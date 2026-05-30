@@ -4,13 +4,13 @@ import RequireGuest from "../components/auth/RequireGuest";
 import RequireAccess from "../components/auth/RequireAccess";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
-import DashboardLayout from "../layouts/DashboardLayout";
+// import DashboardLayout from "../layouts/DashboardLayout";
 
 import Home from "../pages/Home";
 import Privacy from "../pages/Privacy";
 import Terms from "../pages/Terms";
 import Explore from "../pages/Explore";
-import Notifications from "../pages/notifications";
+import Notifications from "../pages/Notifications";
 
 import ProfileIndex from "../pages/profile/ProfileIndex";
 import EditProfile from "../pages/profile/EditProfile";
@@ -22,12 +22,12 @@ import CreateEvent from "../pages/events/CreateEvent";
 import EditEvent from "../pages/events/EditEvent";
 import EventInvitation from "../pages/events/EventInvitation";
 
-import PostsIndex from "../pages/posts/PostsIndex";
+// import PostsIndex from "../pages/posts/PostsIndex";
 import PostDetail from "../pages/posts/PostDetail";
 import CreatePost from "../pages/posts/CreatePost";
 import EditPost from "../pages/posts/EditPost";
 
-import Dashboard from "../pages/Dashboard";
+// import Dashboard from "../pages/Dashboard";
 
 import Register from "../pages/Register";
 import Login from "../pages/Login";
@@ -69,7 +69,7 @@ function AppRoutes() {
           </Route>
 
           <Route path="posts">
-            <Route index element={<PostsIndex />} />
+            {/* <Route index element={<PostsIndex />} /> */}
             <Route path=":postId" element={<PostDetail />} />
             <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
               <Route path="create" element={<CreatePost />} />
@@ -85,11 +85,11 @@ function AppRoutes() {
           </Route>
         </Route>
 
-        <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
+        {/* <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
           <Route path="dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
           </Route>
-        </Route>
+        </Route> */}
 
         <Route path="403" element={<Forbidden />} />
         <Route path="*" element={<NotFound />} />

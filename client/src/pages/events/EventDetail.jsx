@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+
 import useAuth from "../../hooks/useAuth";
 
 import { getEventById, deleteEvent } from "../../api/events";
@@ -215,6 +218,25 @@ export default function EventDetail() {
   return (
     <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full">
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faCalendarDays} />
+              <span>Event Hub</span>
+            </div>
+
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
+              Event Workspace
+            </h1>
+
+            <p className="text-text-soft mt-4 w-full text-base leading-7">
+              Manage and view timelines, interactive QnA sessions, and featured
+              informational posts for this Koloseum event.
+            </p>
+          </div>
+        </div>
+
         <EventHeader
           event={event}
           canManage={canManage}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBell,
   faCheck,
   faCheckDouble,
   faTrash,
@@ -122,19 +123,20 @@ export default function Notifications() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6">
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
+      {/* HEADER */}
+      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-brand mb-2 text-sm font-semibold tracking-[0.3em] uppercase">
-            Activity
-          </p>
+          <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+            <FontAwesomeIcon icon={faBell} />
+            <span>Activity</span>
+          </div>
 
-          <h1 className="font-heading text-text text-4xl font-semibold">
+          <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
             Notifications
           </h1>
 
-          <p className="text-text-soft font-body mt-2 text-sm">
+          <p className="text-text-soft mt-4 max-w-2xl text-base leading-7">
             Stay updated with events, posts, collaborations, and announcements.
           </p>
         </div>
@@ -143,15 +145,13 @@ export default function Notifications() {
           onClick={handleReadAll}
           disabled={unreadCount === 0 || processingId === "all"}
           className={clsx(
-            "rounded-base inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition",
-
+            "rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium transition sm:self-auto",
             unreadCount === 0
               ? "bg-border text-text-soft cursor-not-allowed"
               : "bg-brand text-white hover:opacity-90",
           )}
         >
           <FontAwesomeIcon icon={faCheckDouble} />
-
           {processingId === "all" ? "Processing..." : "Read All"}
         </button>
       </div>
@@ -198,7 +198,6 @@ export default function Notifications() {
               key={notification.id}
               className={clsx(
                 "bg-surface border-border rounded-card relative overflow-hidden border p-5 transition-all",
-
                 !notification.isRead && "border-brand/40 bg-brand/5 shadow-sm",
               )}
             >

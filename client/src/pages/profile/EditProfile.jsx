@@ -7,6 +7,7 @@ import {
   faFloppyDisk,
   faLock,
   faShieldHalved,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
@@ -102,21 +103,27 @@ export default function EditProfile() {
   return (
     <div className="bg-background min-h-dvh px-6 py-10 md:px-10">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-brand text-sm font-semibold tracking-[0.25em] uppercase">
-              Profile Settings
-            </p>
+            <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
+              <FontAwesomeIcon icon={faGear} />
+              <span>Profile Settings</span>
+            </div>
 
-            <h1 className="font-heading text-text mt-2 text-4xl font-semibold">
+            <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
               Edit Profile
             </h1>
+
+            <p className="text-text-soft mt-4 max-w-2xl text-base leading-7">
+              Update your personal details, contact information, and customize
+              your profile appearance.
+            </p>
           </div>
 
           <Link
             to="/profile"
-            className="bg-surface border-border text-text rounded-base hover:bg-brand/5 inline-flex items-center gap-2 border px-4 py-2 text-sm font-medium transition"
+            className="bg-surface border-border text-text rounded-base hover:bg-brand/5 inline-flex items-center justify-center gap-2 self-start border px-5 py-3 text-sm font-medium transition sm:self-auto"
           >
             <FontAwesomeIcon icon={faArrowLeft} />
             Back
