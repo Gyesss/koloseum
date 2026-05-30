@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
 import clsx from "clsx";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import {
   faCompass,
   faMagnifyingGlass,
@@ -14,17 +11,13 @@ import {
 
 import { getEvents } from "../api/events";
 import { getPosts } from "../api/posts";
-
 import PostCard from "../components/ui/posts/PostCard";
 
 export default function Explore() {
   const [events, setEvents] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState("");
-
   const [posts, setPosts] = useState([]);
-
   const [search, setSearch] = useState("");
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +26,6 @@ export default function Explore() {
     async function loadInitialData() {
       try {
         setLoading(true);
-
         const eventsResponse = await getEvents();
 
         if (!mounted) return;
@@ -45,7 +37,6 @@ export default function Explore() {
         setEvents(availableEvents);
 
         const now = new Date();
-
         const activeEvent =
           availableEvents.find(
             (event) =>
@@ -58,11 +49,9 @@ export default function Explore() {
         }
 
         setSelectedEventId(activeEvent.id);
-
         const postsResponse = await getPosts(activeEvent.id);
 
         if (!mounted) return;
-
         setPosts(postsResponse.data || []);
       } catch (error) {
         console.error("Failed to load explore data:", error);
@@ -84,9 +73,7 @@ export default function Explore() {
     try {
       setSelectedEventId(eventId);
       setLoading(true);
-
       const response = await getPosts(eventId);
-
       setPosts(response.data || []);
     } catch (error) {
       console.error("Failed to load posts:", error);
@@ -112,8 +99,16 @@ export default function Explore() {
 
   const filteredPosts = useMemo(() => {
     const keyword = search.toLowerCase().trim();
+    const currentEventObj = events.find((e) => e.id === selectedEventId);
+    const currentEventName = currentEventObj
+      ? currentEventObj.name
+      : "Koloseum Arena";
 
-    return [...posts]
+    return posts
+      .map((post) => ({
+        ...post,
+        event: { name: currentEventName },
+      }))
       .filter((post) => {
         if (!keyword) return true;
 
@@ -129,11 +124,11 @@ export default function Explore() {
 
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-  }, [posts, search]);
+  }, [posts, search, events, selectedEventId]);
 
   return (
-    <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
-      <div className="mx-auto flex w-full max-w-450 flex-col gap-8">
+    <div className="bg-background font-body text-text min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         {/* HEADER */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -154,27 +149,27 @@ export default function Explore() {
 
           <Link
             to="/posts/create"
-            className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 sm:self-auto"
+            className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-95 sm:self-auto"
           >
             <FontAwesomeIcon icon={faPlus} />
             Create Post
           </Link>
         </div>
 
+        {/* CONTROLS */}
         <div className="flex w-full flex-col gap-3 xl:max-w-md">
           {/* SEARCH */}
-          <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-4 py-3">
+          <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-4 py-3 shadow-xs">
             <FontAwesomeIcon
               icon={faMagnifyingGlass}
               className="text-text-soft"
             />
-
             <input
               type="text"
               placeholder="Search posts, captions, or events..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="text-text placeholder:text-text-soft w-full bg-transparent text-sm outline-none"
+              className="text-text placeholder:text-text-soft w-full bg-transparent text-sm font-medium outline-none"
             />
           </div>
 
@@ -182,7 +177,7 @@ export default function Explore() {
           <select
             value={selectedEventId}
             onChange={(event) => handleEventChange(event.target.value)}
-            className="border-border bg-surface text-text rounded-card border px-4 py-3 text-sm outline-none"
+            className="border-border bg-surface text-text rounded-card cursor-pointer border px-4 py-3 text-sm font-medium shadow-xs outline-none"
           >
             {events.map((event) => (
               <option key={event.id} value={event.id}>
@@ -192,10 +187,10 @@ export default function Explore() {
           </select>
         </div>
 
-        {/* FEATURED */}
+        {/* FEATURED WARNING BADGE */}
         {!loading && filteredPosts.some((post) => post.isFeatured) && (
-          <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-5 py-4">
-            <div className="bg-brand/10 text-brand flex h-11 w-11 items-center justify-center rounded-full">
+          <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-5 py-4 shadow-xs">
+            <div className="bg-brand/10 text-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
               <FontAwesomeIcon icon={faStar} />
             </div>
 
@@ -203,7 +198,6 @@ export default function Explore() {
               <p className="text-text text-sm font-semibold">
                 Featured posts are prioritized
               </p>
-
               <p className="text-text-soft text-sm">
                 Highlighted content appears first in the feed.
               </p>
@@ -211,30 +205,24 @@ export default function Explore() {
           </div>
         )}
 
-        {/* CONTENT */}
+        {/* CONTENT MASONRY GRID */}
         {loading ? (
           <div
             className={clsx(
               "gap-4 [column-fill:balance]",
-              "columns-1",
-              "sm:columns-2",
-              "md:columns-2",
-              "lg:columns-3",
-              "xl:columns-5",
-              "2xl:columns-6",
+              "columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5",
             )}
           >
-            {Array.from({ length: 12 }).map((_, index) => (
+            {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="border-border bg-surface mb-4 break-inside-avoid rounded-4xl border p-3"
+                className="border-border bg-surface rounded-card mb-4 break-inside-avoid border p-4 shadow-xs"
               >
-                <div className="bg-border aspect-4/5 animate-pulse rounded-sm" />
-
+                <div className="bg-border rounded-base aspect-4/5 animate-pulse" />
                 <div className="mt-4 space-y-2">
-                  <div className="bg-border h-3 w-20 animate-pulse rounded-full" />
-                  <div className="bg-border h-4 w-4/5 animate-pulse rounded-full" />
-                  <div className="bg-border h-3 w-2/3 animate-pulse rounded-full" />
+                  <div className="bg-border/60 h-3 w-20 animate-pulse rounded-full" />
+                  <div className="bg-border/60 h-4 w-4/5 animate-pulse rounded-full" />
+                  <div className="bg-border/60 h-3 w-2/3 animate-pulse rounded-full" />
                 </div>
               </div>
             ))}
@@ -243,12 +231,7 @@ export default function Explore() {
           <div
             className={clsx(
               "gap-4 [column-fill:balance]",
-              "columns-1",
-              "sm:columns-2",
-              "md:columns-2",
-              "lg:columns-3",
-              "xl:columns-5",
-              "2xl:columns-6",
+              "columns-1 sm:columns-2 md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5",
             )}
           >
             {filteredPosts.map((post) => (
@@ -258,19 +241,17 @@ export default function Explore() {
             ))}
           </div>
         ) : (
-          <div className="border-border bg-surface rounded-card flex flex-col items-center justify-center border px-6 py-24 text-center">
+          <div className="border-border bg-surface rounded-card flex flex-col items-center justify-center border px-6 py-24 text-center shadow-xs">
             <h2 className="font-heading text-text text-3xl font-semibold">
               No Posts Found
             </h2>
-
             <p className="text-text-soft mt-3 max-w-md leading-7">
               There are currently no posts matching your search or selected
-              event.
+              event inside this archive ledger.
             </p>
-
             <Link
               to="/events"
-              className="bg-brand rounded-base mt-6 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+              className="bg-brand rounded-base mt-6 px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-90"
             >
               Browse Events
             </Link>
