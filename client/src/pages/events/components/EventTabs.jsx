@@ -1,9 +1,9 @@
 import clsx from "clsx";
 
 const tabs = [
+  { key: "posts", label: "Posts" },
   { key: "timeline", label: "Timeline" },
   { key: "qna", label: "Q&A" },
-  { key: "posts", label: "Posts" },
 ];
 
 export default function EventTabs({ activeTab, setActiveTab }) {

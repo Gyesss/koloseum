@@ -11,6 +11,7 @@ import {
 
 import { getEvents } from "../api/events";
 import { getPosts } from "../api/posts";
+import { getPoll } from "../api/polls";
 import PostCard from "../components/ui/posts/PostCard";
 
 export default function Explore() {
@@ -52,7 +53,21 @@ export default function Explore() {
         const postsResponse = await getPosts(activeEvent.id);
 
         if (!mounted) return;
-        setPosts(postsResponse.data || []);
+
+        const postList = postsResponse.data || [];
+        const postsWithPolls = await Promise.all(
+          postList.map(async (post) => {
+            try {
+              const pollRes = await getPoll(activeEvent.id, post.id);
+              return { ...post, poll: pollRes?.data || null };
+            } catch {
+              return { ...post, poll: null };
+            }
+          }),
+        );
+
+        if (!mounted) return;
+        setPosts(postsWithPolls);
       } catch (error) {
         console.error("Failed to load explore data:", error);
       } finally {
@@ -74,7 +89,20 @@ export default function Explore() {
       setSelectedEventId(eventId);
       setLoading(true);
       const response = await getPosts(eventId);
-      setPosts(response.data || []);
+      const postList = response.data || [];
+
+      const postsWithPolls = await Promise.all(
+        postList.map(async (post) => {
+          try {
+            const pollRes = await getPoll(eventId, post.id);
+            return { ...post, poll: pollRes?.data || null };
+          } catch {
+            return { ...post, poll: null };
+          }
+        }),
+      );
+
+      setPosts(postsWithPolls);
     } catch (error) {
       console.error("Failed to load posts:", error);
     } finally {

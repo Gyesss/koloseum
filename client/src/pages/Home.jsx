@@ -14,6 +14,7 @@ import {
 
 import { getEvents } from "../api/events";
 import { getPosts } from "../api/posts";
+import { getPoll } from "../api/polls";
 import PostCard from "../components/ui/posts/PostCard";
 import useAuth from "../hooks/useAuth";
 
@@ -61,7 +62,21 @@ export default function Home() {
 
         if (priorityEvent?.id) {
           const postRes = await getPosts(priorityEvent.id);
-          setPosts(postRes?.data || postRes || []);
+          const postList = postRes?.data || postRes || [];
+
+          // Fetch poll for each post in parallel and merge into post objects
+          const postsWithPolls = await Promise.all(
+            postList.map(async (post) => {
+              try {
+                const pollRes = await getPoll(priorityEvent.id, post.id);
+                return { ...post, poll: pollRes?.data || null };
+              } catch {
+                return { ...post, poll: null };
+              }
+            }),
+          );
+
+          setPosts(postsWithPolls);
         }
       } catch (err) {
         console.error("Failed to synchronize arena assets:", err);
@@ -291,10 +306,8 @@ export default function Home() {
               </div>
 
               {likedPosts.length > 0 ? (
-                /* IMPLEMENTASI MASONRY EFFECT: Menggunakan CSS Columns & gap */
                 <div className="columns-1 gap-6 space-y-6 sm:columns-2">
                   {likedPosts.map((post) => (
-                    /* break-inside-avoid mencegah kartu terpotong di tengah kolom */
                     <div key={post.id} className="break-inside-avoid">
                       <PostCard post={post} onPostUpdate={handlePostUpdate} />
                     </div>

@@ -1,22 +1,18 @@
 import { useEffect, useState } from "react";
-
 import { Link, useNavigate, useParams } from "react-router-dom";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
-
 import { getEventById, deleteEvent } from "../../api/events";
 import { getPosts } from "../../api/posts";
-
+import { getPoll } from "../../api/polls";
 import {
   getTimelines,
   createTimeline,
   updateTimeline,
   deleteTimeline,
 } from "../../api/timelines";
-
 import { getQnas, createQna, updateQna, deleteQna } from "../../api/qnas";
 
 import EventHeader from "./components/EventHeader";
@@ -27,22 +23,15 @@ import PostsSection from "./components/PostsSection";
 
 export default function EventDetail() {
   const { eventId } = useParams();
-
   const navigate = useNavigate();
-
   const { user } = useAuth();
 
   const [event, setEvent] = useState(null);
-
   const [posts, setPosts] = useState([]);
-
   const [timelines, setTimelines] = useState([]);
-
   const [qnas, setQnas] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
-  const [activeTab, setActiveTab] = useState("timeline");
+  const [activeTab, setActiveTab] = useState("posts");
 
   const canManage = user?.role === "ADMIN" || user?.role === "ORGANIZER";
 
@@ -60,12 +49,21 @@ export default function EventDetail() {
           ]);
 
         setEvent(eventResponse.data);
-
-        setPosts(postsResponse.data || []);
-
         setTimelines(timelinesResponse.data || []);
-
         setQnas(qnasResponse.data || []);
+
+        const postList = postsResponse.data || [];
+        const postsWithPolls = await Promise.all(
+          postList.map(async (post) => {
+            try {
+              const pollRes = await getPoll(eventId, post.id);
+              return { ...post, poll: pollRes?.data || null };
+            } catch {
+              return { ...post, poll: null };
+            }
+          }),
+        );
+        setPosts(postsWithPolls);
       } catch (error) {
         console.error("Failed to load event detail:", error);
       } finally {
@@ -80,16 +78,12 @@ export default function EventDetail() {
     const confirmed = window.confirm(
       "Are you sure you want to delete this event?",
     );
-
     if (!confirmed) return;
-
     try {
       await deleteEvent(eventId);
-
       navigate("/events");
     } catch (error) {
       console.error("Delete event failed:", error);
-
       alert("Failed to delete event");
     }
   }
@@ -97,11 +91,9 @@ export default function EventDetail() {
   async function handleCreateTimeline(data) {
     try {
       const response = await createTimeline(eventId, data);
-
       setTimelines((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Create timeline failed:", error);
-
       alert("Failed to create timeline");
     }
   }
@@ -109,7 +101,6 @@ export default function EventDetail() {
   async function handleUpdateTimeline(timelineId, data) {
     try {
       const response = await updateTimeline(eventId, timelineId, data);
-
       setTimelines((prev) =>
         prev.map((timeline) =>
           timeline.id === timelineId ? response.data : timeline,
@@ -117,25 +108,20 @@ export default function EventDetail() {
       );
     } catch (error) {
       console.error("Update timeline failed:", error);
-
       alert("Failed to update timeline");
     }
   }
 
   async function handleDeleteTimeline(timelineId) {
     const confirmed = window.confirm("Delete this timeline?");
-
     if (!confirmed) return;
-
     try {
       await deleteTimeline(eventId, timelineId);
-
       setTimelines((prev) =>
         prev.filter((timeline) => timeline.id !== timelineId),
       );
     } catch (error) {
       console.error("Delete timeline failed:", error);
-
       alert("Failed to delete timeline");
     }
   }
@@ -143,11 +129,9 @@ export default function EventDetail() {
   async function handleCreateQna(data) {
     try {
       const response = await createQna(eventId, data);
-
       setQnas((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Create QnA failed:", error);
-
       alert("Failed to create QnA");
     }
   }
@@ -155,29 +139,23 @@ export default function EventDetail() {
   async function handleUpdateQna(qnaId, data) {
     try {
       const response = await updateQna(eventId, qnaId, data);
-
       setQnas((prev) =>
         prev.map((qna) => (qna.id === qnaId ? response.data : qna)),
       );
     } catch (error) {
       console.error("Update QnA failed:", error);
-
       alert("Failed to update QnA");
     }
   }
 
   async function handleDeleteQna(qnaId) {
     const confirmed = window.confirm("Delete this QnA?");
-
     if (!confirmed) return;
-
     try {
       await deleteQna(eventId, qnaId);
-
       setQnas((prev) => prev.filter((qna) => qna.id !== qnaId));
     } catch (error) {
       console.error("Delete QnA failed:", error);
-
       alert("Failed to delete QnA");
     }
   }
@@ -199,11 +177,9 @@ export default function EventDetail() {
           <h1 className="font-heading text-text text-3xl font-semibold">
             Event Not Found
           </h1>
-
           <p className="text-text-soft mt-3">
             The requested event does not exist.
           </p>
-
           <Link
             to="/events"
             className="bg-brand rounded-base mt-6 px-5 py-3 text-sm font-medium text-white"
@@ -218,18 +194,15 @@ export default function EventDetail() {
   return (
     <div className="bg-background min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        {/* HEADER */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full">
             <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
               <FontAwesomeIcon icon={faCalendarDays} />
               <span>Event Hub</span>
             </div>
-
             <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
               Event Workspace
             </h1>
-
             <p className="text-text-soft mt-4 w-full text-base leading-7">
               Manage and view timelines, interactive QnA sessions, and featured
               informational posts for this Koloseum event.
@@ -266,7 +239,7 @@ export default function EventDetail() {
         )}
 
         {activeTab === "posts" && (
-          <PostsSection posts={posts} eventId={eventId} canManage={canManage} />
+          <PostsSection posts={posts} canManage={canManage} />
         )}
       </div>
     </div>
