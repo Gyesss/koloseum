@@ -1,7 +1,5 @@
 import clsx from "clsx";
-
 import { useNavigate } from "react-router-dom";
-
 import { getPostTheme } from "./postUtils";
 
 export default function PostFilmFrame({
@@ -12,7 +10,6 @@ export default function PostFilmFrame({
   to,
 }) {
   const navigate = useNavigate();
-
   const theme = getPostTheme(postType);
 
   return (
@@ -20,57 +17,49 @@ export default function PostFilmFrame({
       onClick={() => {
         if (to) navigate(to);
       }}
-      className={clsx(
-        "group relative h-fit cursor-pointer",
-
-        className,
-      )}
+      className={clsx("group relative h-fit cursor-pointer", className)}
     >
       {featured && (
         <>
           <div
             className={clsx(
-              "absolute inset-0 translate-x-2 translate-y-2 border border-black/10 bg-[#ece8e1]",
-
+              "rounded-card border-border/40 bg-surface/80 absolute inset-0 translate-x-2 translate-y-2 border",
               theme.glow,
             )}
           />
-
-          <div className="absolute inset-0 translate-x-1 translate-y-1 border border-black/10 bg-[#f6f3ee]" />
+          <div className="rounded-card border-border/30 bg-surface/50 absolute inset-0 translate-x-1 translate-y-1 border" />
         </>
       )}
 
       <div
         className={clsx(
-          "relative overflow-hidden border border-black/10 bg-[#f3f1ee] p-4",
-
+          "rounded-card border-border bg-surface relative overflow-hidden border p-5",
           "transition-all duration-300",
-
           "hover:-translate-y-1",
-
           featured
-            ? "shadow-[0_30px_70px_rgba(0,0,0,0.18)]"
-            : "shadow-[0_18px_40px_rgba(0,0,0,0.12)]",
-
+            ? "shadow-[0_25px_60px_rgba(68,64,60,0.15)]"
+            : "shadow-[0_15px_35px_rgba(68,64,60,0.08)]",
           theme.glow,
         )}
       >
-        <div className="pointer-events-none absolute inset-0 opacity-[0.03]">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.04]">
           <div
             className="h-full w-full"
             style={{
               backgroundImage:
-                "radial-gradient(circle, black 0.7px, transparent 0.7px)",
-              backgroundSize: "8px 8px",
+                "radial-gradient(circle, var(--color-text) 0.8px, transparent 0.8px)",
+              backgroundSize: "10px 10px",
             }}
           />
         </div>
 
         {featured && (
-          <div className="absolute top-3 right-3 z-20 border border-black/10 bg-black px-2 py-1">
-            <span className="text-[10px] tracking-[0.25em] text-white uppercase">
-              Featured
-            </span>
+          <div className="mb-3 flex justify-end">
+            <div className="rounded-base border-border/30 bg-text border px-2.5 py-0.5">
+              <span className="text-surface font-body text-[10px] font-bold tracking-[0.25em] uppercase">
+                Featured
+              </span>
+            </div>
           </div>
         )}
 
