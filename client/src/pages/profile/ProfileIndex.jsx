@@ -8,12 +8,16 @@ import {
   faCakeCandles,
   faShieldHalved,
   faUser,
+  faRightFromBracket,
+  faKey,
+  faLock,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
 
 export default function ProfileIndex() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   if (!user) return null;
 
@@ -54,7 +58,7 @@ export default function ProfileIndex() {
           </div>
         </div>
 
-        {/* Banner */}
+        {/* PROFILE MAIN CARD */}
         <div className="bg-surface border-border rounded-card overflow-hidden border shadow-sm">
           <div className="from-border via-brand to-accent h-2 w-full bg-linear-to-r" />
 
@@ -153,6 +157,66 @@ export default function ProfileIndex() {
                 value={user.role}
               />
             </div>
+          </div>
+        </div>
+
+        {/* ACCOUNT SETTINGS SECTION */}
+        <div className="bg-surface border-border rounded-card border p-6 shadow-sm md:p-8">
+          <h2 className="font-heading text-text text-xl font-semibold tracking-tight">
+            Account Settings
+          </h2>
+          <p className="text-text-soft mt-1 text-sm">
+            Manage your session credentials and security configurations.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link
+              to="/profile/change-password"
+              className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
+            >
+              <FontAwesomeIcon icon={faLock} className="text-blue-500" />
+              Change Password
+            </Link>
+
+            <Link
+              to="/forget-password"
+              className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
+            >
+              <FontAwesomeIcon icon={faKey} className="text-blue-500" />
+              Reset Password
+            </Link>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
+            >
+              <FontAwesomeIcon
+                icon={faRightFromBracket}
+                className="text-blue-500"
+              />
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        {/* DANGER ZONE SECTION */}
+        <div className="rounded-card border border-red-500/20 bg-red-500/5 p-6 md:p-8">
+          <h2 className="font-heading text-xl font-semibold tracking-tight text-red-500">
+            Danger Zone
+          </h2>
+          <p className="text-text-soft mt-1 text-sm">
+            Irreversible actions regarding your Koloseum profile data.
+          </p>
+
+          <div className="mt-6">
+            <button
+              type="button"
+              className="rounded-base inline-flex items-center gap-2 bg-red-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-600"
+            >
+              <FontAwesomeIcon icon={faTrashCan} />
+              Delete Account
+            </button>
           </div>
         </div>
       </div>

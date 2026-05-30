@@ -10,6 +10,7 @@ import Home from "../pages/Home";
 import Privacy from "../pages/Privacy";
 import Terms from "../pages/Terms";
 import Explore from "../pages/Explore";
+import Onboarding from "../pages/Onboarding";
 import Notifications from "../pages/Notifications";
 
 import ProfileIndex from "../pages/profile/ProfileIndex";
@@ -45,6 +46,7 @@ function AppRoutes() {
           <Route path="privacy" element={<Privacy />} />
           <Route path="terms" element={<Terms />} />
           <Route path="explore" element={<Explore />} />
+          <Route path="onboarding" element={<Onboarding />} />
           <Route path="demo" element={<Demo />} />
           <Route element={<RequireAccess />}>
             <Route path="notifications" element={<Notifications />} />

@@ -41,7 +41,7 @@ export default function Register() {
     try {
       await register(form);
 
-      navigate("/login");
+      navigate("/onboarding");
     } catch (err) {
       console.error(err);
 
