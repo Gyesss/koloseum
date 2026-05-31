@@ -64,7 +64,6 @@ export default function Home() {
           const postRes = await getPosts(priorityEvent.id);
           const postList = postRes?.data || postRes || [];
 
-          // Fetch poll for each post in parallel and merge into post objects
           const postsWithPolls = await Promise.all(
             postList.map(async (post) => {
               try {
@@ -115,6 +114,8 @@ export default function Home() {
       </div>
     );
   }
+
+  const mood = priorityResult?.data?.mood || null;
 
   return (
     <div className="bg-background text-text font-body min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
@@ -210,41 +211,110 @@ export default function Home() {
                   Current Arena Highlights
                 </h2>
                 {priorityResult && (
-                  <span className="bg-brand/15 text-brand rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase">
+                  <span
+                    className="rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
+                    style={
+                      mood
+                        ? { backgroundColor: `${mood}22`, color: mood }
+                        : { backgroundColor: undefined }
+                    }
+                    className={
+                      !mood
+                        ? "bg-brand/15 text-brand rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
+                        : "rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
+                    }
+                  >
                     {priorityResult.status}
                   </span>
                 )}
               </div>
 
               {priorityResult?.data ? (
-                <div className="border-border bg-surface rounded-card overflow-hidden border shadow-xs transition hover:shadow-md">
-                  <div className="bg-border/20 relative h-64 w-full">
+                <div
+                  className="rounded-card overflow-hidden shadow-xs transition hover:shadow-md"
+                  style={
+                    mood
+                      ? {
+                          border: `1px solid ${mood}55`,
+                          boxShadow: `0 0 0 1px ${mood}22`,
+                        }
+                      : undefined
+                  }
+                >
+                  {/* BANNER */}
+                  <div className="relative h-72 w-full">
                     <img
                       src={priorityResult.data.bannerUrl}
                       alt={priorityResult.data.name}
                       className="h-full w-full object-cover"
                     />
-                    <div className="from-text/80 via-text/20 absolute inset-0 bg-linear-to-t to-transparent" />
-                    <div className="text-surface absolute right-5 bottom-5 left-5">
-                      <p className="text-accent text-xs font-semibold tracking-widest uppercase">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
+
+                    {/* MOOD RADIAL GLOW over banner */}
+                    {mood && (
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `radial-gradient(ellipse at bottom left, ${mood}55 0%, transparent 60%)`,
+                        }}
+                      />
+                    )}
+
+                    {/* STATUS BADGE on banner */}
+                    <div className="absolute top-4 left-4">
+                      <span
+                        className="rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.2em] uppercase backdrop-blur-sm"
+                        style={
+                          mood
+                            ? {
+                                backgroundColor: `${mood}33`,
+                                color: mood,
+                                border: `1px solid ${mood}66`,
+                              }
+                            : {
+                                backgroundColor: "rgba(255,255,255,0.15)",
+                                color: "white",
+                                border: "1px solid rgba(255,255,255,0.3)",
+                              }
+                        }
+                      >
+                        {priorityResult.status}
+                      </span>
+                    </div>
+
+                    <div className="absolute right-5 bottom-5 left-5">
+                      <p
+                        className="text-xs font-semibold tracking-widest uppercase"
+                        style={{ color: mood || undefined }}
+                      >
                         {priorityResult.data.tagline || "Veni, Vidi, Vici"}
                       </p>
-                      <h3 className="font-heading text-surface mt-1 text-3xl font-bold">
+                      <h3 className="font-heading text-surface mt-1 text-3xl font-bold drop-shadow-sm">
                         {priorityResult.data.name}
                       </h3>
                     </div>
                   </div>
 
-                  <div className="p-6">
+                  {/* BODY */}
+                  <div
+                    className="bg-surface p-6"
+                    style={
+                      mood ? { borderTop: `2px solid ${mood}44` } : undefined
+                    }
+                  >
                     <p className="text-text-soft line-clamp-3 text-sm leading-relaxed">
                       {priorityResult.data.description}
                     </p>
 
-                    <div className="border-border/40 text-text-soft mt-6 flex flex-wrap items-center gap-6 border-t pt-4 text-xs">
+                    <div
+                      className="text-text-soft mt-6 flex flex-wrap items-center gap-6 border-t pt-4 text-xs"
+                      style={{ borderColor: mood ? `${mood}33` : undefined }}
+                    >
                       <div className="flex items-center gap-2">
                         <FontAwesomeIcon
                           icon={faLocationDot}
-                          className="text-brand"
+                          style={{ color: mood || undefined }}
+                          className={!mood ? "text-brand" : ""}
                         />
                         <span>{priorityResult.data.location}</span>
                       </div>
@@ -270,7 +340,17 @@ export default function Home() {
                         onClick={() =>
                           navigate(`/events/${priorityResult.data.id}`)
                         }
-                        className="rounded-base bg-brand text-surface cursor-pointer px-5 py-3 text-xs font-bold tracking-wider uppercase transition hover:opacity-90"
+                        className="rounded-base cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
+                        style={
+                          mood
+                            ? { backgroundColor: mood }
+                            : { backgroundColor: undefined }
+                        }
+                        className={
+                          !mood
+                            ? "rounded-base bg-brand cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
+                            : "rounded-base cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
+                        }
                       >
                         Enter Event Arena{" "}
                         <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
