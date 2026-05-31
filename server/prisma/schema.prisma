@@ -97,7 +97,7 @@ enum TimelineType {
 model Timeline {
   id      String @id @default(uuid())
   eventId String @map("event_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   name       String       @db.VarChar(124)
   additional String?      @db.Text
@@ -115,7 +115,7 @@ model Timeline {
 model Qna {
   id      String @id @default(uuid())
   eventId String @map("event_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   question String @db.Text
   answer   String @db.Text
@@ -139,7 +139,7 @@ model Post {
   collaborators PostCollaborator[]
 
   eventId String @map("event_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   title     String     @db.VarChar(124)
   caption   String?    @db.Text
@@ -169,8 +169,8 @@ model PostCollaborator {
   acceptedAt DateTime? @map("accepted_at")
   isOwner    Boolean   @default(false) @map("is_owner")
 
-  post Post @relation(fields: [postId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -182,7 +182,7 @@ model PostCollaborator {
 model Media {
   id     String @id @default(uuid())
   postId String @map("post_id")
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   url      String  @db.Text
   path     String  @db.Text
@@ -202,8 +202,8 @@ model PostLike {
   userId String @map("user_id")
   postId String @map("post_id")
 
-  user User @relation(fields: [userId], references: [id])
-  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -220,8 +220,8 @@ model Comment {
   userId String @map("user_id")
   postId String @map("post_id")
 
-  user User @relation(fields: [userId], references: [id])
-  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   content String @db.Text
 
@@ -239,8 +239,8 @@ model CommentLike {
   userId    String @map("user_id")
   commentId String @map("comment_id")
 
-  user    User    @relation(fields: [userId], references: [id])
-  comment Comment @relation(fields: [commentId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -255,7 +255,7 @@ model CommentLike {
 model Poll {
   id     String @id @default(uuid())
   postId String @unique @map("post_id")
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   question   String @db.Text
   maxChoices Int    @default(1) @map("max_choices") @db.UnsignedInt
@@ -272,7 +272,7 @@ model Poll {
 model PollOption {
   id     String @id @default(uuid())
   pollId String @map("poll_id")
-  poll   Poll   @relation(fields: [pollId], references: [id])
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   value String     @db.VarChar(255)
   votes PollVote[]
@@ -291,9 +291,9 @@ model PollVote {
   pollId   String @map("poll_id")
   optionId String @map("option_id")
 
-  user   User       @relation(fields: [userId], references: [id])
-  poll   Poll       @relation(fields: [pollId], references: [id])
-  option PollOption @relation(fields: [optionId], references: [id])
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -320,7 +320,7 @@ enum NotificationType {
 model Notification {
   id     String @id @default(uuid())
   userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   title   String           @db.VarChar(124)
   content String           @db.Text
