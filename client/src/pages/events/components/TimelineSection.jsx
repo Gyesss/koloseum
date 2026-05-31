@@ -10,8 +10,10 @@ import {
   faMicrophone,
   faUsers,
   faMusic,
-  faClock,
   faFlagCheckered,
+  faHandshake,
+  faMugHot,
+  faTrophy,
 } from "@fortawesome/free-solid-svg-icons";
 
 const TYPE_CONFIG = {
@@ -20,14 +22,54 @@ const TYPE_CONFIG = {
     color: "text-amber-700",
     bg: "bg-amber-100",
   },
-  OPENING: { icon: faCalendarCheck, color: "text-accent", bg: "bg-green-100" },
-  MC: { icon: faMicrophone, color: "text-purple-700", bg: "bg-purple-100" },
-  SHOW: { icon: faMusic, color: "text-pink-700", bg: "bg-pink-100" },
-  CONTEST: { icon: faUsers, color: "text-emerald-700", bg: "bg-emerald-100" },
-  ICE_BREAKING: { icon: faUsers, color: "text-teal-700", bg: "bg-teal-100" },
-  BREAKS: { icon: faClock, color: "text-orange-700", bg: "bg-orange-100" },
-  CLOSING: { icon: faFlagCheckered, color: "text-red-700", bg: "bg-red-100" },
-  OTHER: { icon: faCalendarCheck, color: "text-text-soft", bg: "bg-gray-100" },
+
+  OPENING: {
+    icon: faHandshake,
+    color: "text-sky-700",
+    bg: "bg-sky-100",
+  },
+
+  MC: {
+    icon: faMicrophone,
+    color: "text-violet-700",
+    bg: "bg-violet-100",
+  },
+
+  SHOW: {
+    icon: faMusic,
+    color: "text-pink-700",
+    bg: "bg-pink-100",
+  },
+
+  CONTEST: {
+    icon: faTrophy,
+    color: "text-emerald-700",
+    bg: "bg-emerald-100",
+  },
+
+  ICE_BREAKING: {
+    icon: faUsers,
+    color: "text-cyan-700",
+    bg: "bg-cyan-100",
+  },
+
+  BREAKS: {
+    icon: faMugHot,
+    color: "text-orange-700",
+    bg: "bg-orange-100",
+  },
+
+  CLOSING: {
+    icon: faFlagCheckered,
+    color: "text-rose-700",
+    bg: "bg-rose-100",
+  },
+
+  OTHER: {
+    icon: faCalendarCheck,
+    color: "text-slate-700",
+    bg: "bg-slate-100",
+  },
 };
 
 export default function TimelineSection({
@@ -49,6 +91,18 @@ export default function TimelineSection({
       start: new Date(start - tzOffset).toISOString().slice(0, 16),
       end: new Date(end - tzOffset).toISOString().slice(0, 16),
     };
+  };
+
+  const getTimeLeft = (targetDate) => {
+    const diff = targetDate - now;
+    if (diff < 0) return "Passed";
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} day${days > 1 ? "s" : ""} left`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} left`;
+    return `${minutes} minute${minutes !== 1 ? "s" : ""} left`;
   };
 
   const startEdit = (timeline) => {
@@ -221,28 +275,42 @@ export default function TimelineSection({
                         </div>
                       ) : (
                         <div className="group">
-                          <div className="text-brand flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-widest uppercase">
-                            <span>
-                              {start.toLocaleDateString()}{" "}
-                              {start.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                            <span>-</span>
-                            <span>
-                              {end.toLocaleDateString()}{" "}
-                              {end.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                            {isActive && (
-                              <span className="bg-brand/10 animate-pulse rounded-full px-2 py-0.5">
-                                LIVE NOW
+                          <div className="flex flex-col gap-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${config.bg} ${config.color}`}
+                              >
+                                {t.type}
                               </span>
-                            )}
+                              {isActive ? (
+                                <span className="bg-brand/10 text-brand animate-pulse rounded-full px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase">
+                                  LIVE NOW
+                                </span>
+                              ) : (
+                                <span className="text-text-soft text-[10px] font-bold tracking-widest uppercase">
+                                  {getTimeLeft(start)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-brand text-[10px] font-bold tracking-widest uppercase">
+                              <span>
+                                {start.toLocaleDateString()}{" "}
+                                {start.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                              <span className="mx-1">-</span>
+                              <span>
+                                {end.toLocaleDateString()}{" "}
+                                {end.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
                           </div>
+
                           <h4 className="font-heading text-text mt-1 text-3xl font-semibold">
                             {t.name}
                           </h4>
