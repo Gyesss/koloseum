@@ -16,10 +16,7 @@ import { createPoll, getPoll, deletePoll } from "../../api/polls";
 
 export default function EditPost() {
   const navigate = useNavigate();
-  const { postId } = useParams();
-
-  // We need eventId — get it from the post itself after fetch
-  const [eventId, setEventId] = useState("");
+  const { eventId, postId } = useParams();
 
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
@@ -42,26 +39,7 @@ export default function EditPost() {
       try {
         setInitialLoading(true);
 
-        // getPostById requires eventId — but we only have postId from params.
-        // Strategy: fetch from a posts index isn't available without eventId.
-        // The PostDetail page likely navigates here with state or the URL includes eventId.
-        // Since the route is /posts/:postId/edit and PostDetail knows the eventId,
-        // we read it from history state if available, then fall back to the post's eventId field.
-        const stateEventId = window.history.state?.usr?.eventId || null;
-
-        // Temporary: try to resolve eventId via post response using a broad fetch.
-        // We use getPostById with a placeholder and rely on the post having eventId in its data.
-        // If your backend exposes GET /posts/:postId directly, swap this out.
-        // For now, we require the caller to pass eventId via navigation state.
-        if (!stateEventId) {
-          alert("Missing event context. Please navigate from the event page.");
-          navigate(-1);
-          return;
-        }
-
-        setEventId(stateEventId);
-
-        const postRes = await getPostById(stateEventId, postId);
+        const postRes = await getPostById(eventId, postId);
         const post = postRes?.data || postRes;
 
         setTitle(post.title || "");
@@ -71,7 +49,7 @@ export default function EditPost() {
         setExistingMedia(post.media || []);
 
         try {
-          const pollRes = await getPoll(stateEventId, postId);
+          const pollRes = await getPoll(eventId, postId);
           if (pollRes?.data) {
             setEnablePoll(true);
             setPollQuestion(pollRes.data.question || "");
@@ -93,7 +71,7 @@ export default function EditPost() {
     }
 
     loadPost();
-  }, [postId, navigate]);
+  }, [eventId, postId, navigate]);
 
   const handleOptionChange = (index, value) => {
     const updated = [...pollOptions];
@@ -192,7 +170,7 @@ export default function EditPost() {
         }
       }
 
-      navigate(`/events/${eventId}`);
+      navigate(`/posts/${eventId}/${postId}`);
     } catch (error) {
       console.error("Failed to save post:", error);
       alert("Failed to save changes to the post.");

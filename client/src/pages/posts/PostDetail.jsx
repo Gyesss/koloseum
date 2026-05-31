@@ -41,7 +41,7 @@ function timeAgo(dateStr) {
 }
 
 export default function PostDetail() {
-  const { postId } = useParams();
+  const { eventId, postId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -60,26 +60,6 @@ export default function PostDetail() {
       try {
         setLoading(true);
 
-        // We need eventId — read from navigation state or derive after post load.
-        const stateEventId = window.history.state?.usr?.eventId || null;
-
-        // Attempt: if no stateEventId, we can't call getPostById without it.
-        // Fallback: user must arrive here via navigate with state.
-        if (!stateEventId) {
-          // Try to get from sessionStorage as a last resort
-          const cachedEventId = sessionStorage.getItem(`post-event-${postId}`);
-          if (!cachedEventId) {
-            alert(
-              "Missing event context. Please navigate from the event or explore page.",
-            );
-            navigate(-1);
-            return;
-          }
-        }
-
-        const eventId =
-          stateEventId || sessionStorage.getItem(`post-event-${postId}`);
-
         const [postRes, commentsRes] = await Promise.all([
           getPostById(eventId, postId),
           getComments(eventId, postId),
@@ -90,9 +70,6 @@ export default function PostDetail() {
         setIsLiked(postData.isLiked || false);
         setLikesCount(postData._count?.postLikes || 0);
         setComments(commentsRes?.data || commentsRes || []);
-
-        // Cache eventId for refreshes
-        sessionStorage.setItem(`post-event-${postId}`, eventId);
 
         // Fetch event detail and poll in parallel
         const [eventRes, pollRes] = await Promise.allSettled([
@@ -113,7 +90,7 @@ export default function PostDetail() {
       }
     }
     loadAll();
-  }, [postId, navigate]);
+  }, [eventId, postId]);
 
   const handleLike = async () => {
     if (!user || likeSubmitting) return;
@@ -123,9 +100,9 @@ export default function PostDetail() {
     try {
       setLikeSubmitting(true);
       if (wasLiked) {
-        await unlikePost(post.eventId, postId);
+        await unlikePost(eventId, postId);
       } else {
-        await likePost(post.eventId, postId);
+        await likePost(eventId, postId);
       }
     } catch (err) {
       setIsLiked(wasLiked);
@@ -139,8 +116,8 @@ export default function PostDetail() {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
     try {
-      await deletePost(post.eventId, postId);
-      navigate(`/events/${post.eventId}`);
+      await deletePost(eventId, postId);
+      navigate(`/events/${eventId}`);
     } catch (err) {
       console.error("Delete failed:", err);
       alert("Failed to delete post.");
@@ -268,7 +245,7 @@ export default function PostDetail() {
                 <>
                   <span className="text-text-soft/40 text-xs">·</span>
                   <Link
-                    to={`/events/${post.eventId}`}
+                    to={`/events/${eventId}`}
                     className="text-text-soft hover:text-text flex items-center gap-1.5 text-xs transition"
                     style={{ color: mood || undefined }}
                   >
@@ -323,11 +300,7 @@ export default function PostDetail() {
               {canManage && (
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() =>
-                      navigate(`/posts/${postId}/edit`, {
-                        state: { eventId: post.eventId },
-                      })
-                    }
+                    onClick={() => navigate(`/posts/${eventId}/${postId}/edit`)}
                     className="border-border hover:bg-border/20 text-text-soft rounded-base flex cursor-pointer items-center gap-1.5 border px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition"
                   >
                     <FontAwesomeIcon icon={faPen} />
@@ -350,7 +323,7 @@ export default function PostDetail() {
         {poll && (
           <PostPollSection
             poll={poll}
-            eventId={post.eventId}
+            eventId={eventId}
             postId={postId}
             user={user}
           />
@@ -359,7 +332,7 @@ export default function PostDetail() {
         {/* COMMENTS */}
         <PostComments
           comments={comments}
-          eventId={post.eventId}
+          eventId={eventId}
           postId={postId}
           user={user}
         />

@@ -217,7 +217,7 @@ export default function CreatePost() {
         navigate("/explore");
       } else {
         setActiveDraftId(null);
-        navigate(`/events/${selectedEventId}`);
+        navigate(`/posts/${selectedEventId}/${postId}`);
       }
     } catch (error) {
       console.error("Transaction deployment execution failed:", error);
