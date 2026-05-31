@@ -23,7 +23,7 @@ import CreateEvent from "../pages/events/CreateEvent";
 import EditEvent from "../pages/events/EditEvent";
 import EventInvitation from "../pages/events/EventInvitation";
 
-// import PostsIndex from "../pages/posts/PostsIndex";
+import PostsIndex from "../pages/posts/PostsIndex";
 import PostDetail from "../pages/posts/PostDetail";
 import CreatePost from "../pages/posts/CreatePost";
 import EditPost from "../pages/posts/EditPost";
@@ -71,7 +71,7 @@ function AppRoutes() {
           </Route>
 
           <Route path="posts">
-            {/* <Route index element={<PostsIndex />} /> */}
+            <Route index element={<PostsIndex />} />
             <Route path=":eventId/:postId" element={<PostDetail />} />
             <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
               <Route path="create" element={<CreatePost />} />

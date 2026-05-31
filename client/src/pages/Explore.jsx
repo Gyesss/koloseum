@@ -7,6 +7,7 @@ import {
   faMagnifyingGlass,
   faPlus,
   faStar,
+  faList,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { getEvents } from "../api/events";
@@ -31,18 +32,15 @@ export default function Explore() {
 
         if (!mounted) return;
 
-        const availableEvents = (eventsResponse.data || []).filter(
-          (event) => new Date(event.startAt) <= new Date(),
-        );
-
-        setEvents(availableEvents);
+        const allEvents = eventsResponse.data || [];
+        setEvents(allEvents);
 
         const now = new Date();
         const activeEvent =
-          availableEvents.find(
+          allEvents.find(
             (event) =>
               now >= new Date(event.startAt) && now <= new Date(event.endAt),
-          ) || availableEvents[0];
+          ) || allEvents[0];
 
         if (!activeEvent) {
           setPosts([]);
@@ -169,13 +167,22 @@ export default function Explore() {
               Koloseum events.
             </p>
           </div>
-          <Link
-            to="/posts/create"
-            className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-95 sm:self-auto"
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            Create Post
-          </Link>
+          <div className="flex items-center gap-3 self-start sm:self-auto">
+            <Link
+              to="/posts"
+              className="border-border text-text rounded-base hover:bg-surface inline-flex items-center justify-center gap-2 border px-5 py-3 text-sm font-medium transition"
+            >
+              <FontAwesomeIcon icon={faList} />
+              All Posts
+            </Link>
+            <Link
+              to="/posts/create"
+              className="bg-brand rounded-base inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-95"
+            >
+              <FontAwesomeIcon icon={faPlus} />
+              Create Post
+            </Link>
+          </div>
         </div>
 
         <div className="flex w-full flex-col gap-3 xl:max-w-md">
