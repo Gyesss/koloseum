@@ -72,10 +72,10 @@ function AppRoutes() {
 
           <Route path="posts">
             {/* <Route index element={<PostsIndex />} /> */}
-            <Route path=":postId" element={<PostDetail />} />
+            <Route path=":eventId:postId" element={<PostDetail />} />
             <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
               <Route path="create" element={<CreatePost />} />
-              <Route path=":postId/edit" element={<EditPost />} />
+              <Route path=":eventId:postId/edit" element={<EditPost />} />
             </Route>
           </Route>
         </Route>

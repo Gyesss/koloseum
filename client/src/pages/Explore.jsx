@@ -59,9 +59,13 @@ export default function Explore() {
           postList.map(async (post) => {
             try {
               const pollRes = await getPoll(activeEvent.id, post.id);
-              return { ...post, poll: pollRes?.data || null };
+              return {
+                ...post,
+                eventId: activeEvent.id,
+                poll: pollRes?.data || null,
+              };
             } catch {
-              return { ...post, poll: null };
+              return { ...post, eventId: activeEvent.id, poll: null };
             }
           }),
         );
@@ -95,9 +99,9 @@ export default function Explore() {
         postList.map(async (post) => {
           try {
             const pollRes = await getPoll(eventId, post.id);
-            return { ...post, poll: pollRes?.data || null };
+            return { ...post, eventId, poll: pollRes?.data || null };
           } catch {
-            return { ...post, poll: null };
+            return { ...post, eventId, poll: null };
           }
         }),
       );
@@ -112,15 +116,9 @@ export default function Explore() {
 
   const handlePostUpdate = (updatedPost) => {
     if (!updatedPost?.id) return;
-
     setPosts((prev) =>
       prev.map((post) =>
-        post.id === updatedPost.id
-          ? {
-              ...post,
-              ...updatedPost,
-            }
-          : post,
+        post.id === updatedPost.id ? { ...post, ...updatedPost } : post,
       ),
     );
   };
@@ -140,7 +138,6 @@ export default function Explore() {
       }))
       .filter((post) => {
         if (!keyword) return true;
-
         return (
           post.title?.toLowerCase().includes(keyword) ||
           post.caption?.toLowerCase().includes(keyword) ||
@@ -150,7 +147,6 @@ export default function Explore() {
       .sort((a, b) => {
         if (a.isFeatured && !b.isFeatured) return -1;
         if (!a.isFeatured && b.isFeatured) return 1;
-
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
   }, [posts, search, events, selectedEventId]);
@@ -158,24 +154,20 @@ export default function Explore() {
   return (
     <div className="bg-background font-body text-text min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        {/* HEADER */}
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-brand mb-3 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.3em] uppercase">
               <FontAwesomeIcon icon={faCompass} />
               <span>Explore</span>
             </div>
-
             <h1 className="font-heading text-text text-4xl font-semibold tracking-tight sm:text-5xl">
               Discover Creative Posts
             </h1>
-
             <p className="text-text-soft mt-4 max-w-2xl text-base leading-7">
               Browse featured announcements, rewards, and projects from active
               Koloseum events.
             </p>
           </div>
-
           <Link
             to="/posts/create"
             className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-95 sm:self-auto"
@@ -185,9 +177,7 @@ export default function Explore() {
           </Link>
         </div>
 
-        {/* CONTROLS */}
         <div className="flex w-full flex-col gap-3 xl:max-w-md">
-          {/* SEARCH */}
           <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-4 py-3 shadow-xs">
             <FontAwesomeIcon
               icon={faMagnifyingGlass}
@@ -201,8 +191,6 @@ export default function Explore() {
               className="text-text placeholder:text-text-soft w-full bg-transparent text-sm font-medium outline-none"
             />
           </div>
-
-          {/* EVENT SELECT */}
           <select
             value={selectedEventId}
             onChange={(event) => handleEventChange(event.target.value)}
@@ -216,13 +204,11 @@ export default function Explore() {
           </select>
         </div>
 
-        {/* FEATURED WARNING BADGE */}
         {!loading && filteredPosts.some((post) => post.isFeatured) && (
           <div className="border-border bg-surface rounded-card flex items-center gap-3 border px-5 py-4 shadow-xs">
             <div className="bg-brand/10 text-brand flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
               <FontAwesomeIcon icon={faStar} />
             </div>
-
             <div>
               <p className="text-text text-sm font-semibold">
                 Featured posts are prioritized
@@ -234,7 +220,6 @@ export default function Explore() {
           </div>
         )}
 
-        {/* CONTENT MASONRY GRID */}
         {loading ? (
           <div
             className={clsx(

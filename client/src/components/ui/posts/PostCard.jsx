@@ -29,13 +29,14 @@ export default function PostCard({
   const commentsCount = post?._count?.comments || 0;
   const activePoll =
     poll || post?.poll || (post?.postType === "POLL" ? post : null);
+
   const handleNavigate = () => {
-    navigate(`/posts/${post.id}`);
+    navigate(`/posts/${post.id}`, { state: { eventId: post.eventId } });
   };
 
   const handleComments = (e) => {
     e.stopPropagation();
-    navigate(`/posts/${post.id}/comments`);
+    navigate(`/posts/${post.id}`, { state: { eventId: post.eventId } });
   };
 
   const handleLike = async (e) => {
