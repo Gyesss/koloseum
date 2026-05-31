@@ -134,6 +134,7 @@ export default function Explore() {
       .filter((post) => !post.isDraft)
       .map((post) => ({
         ...post,
+        eventId: selectedEventId,
         event: { name: currentEventName },
       }))
       .filter((post) => {

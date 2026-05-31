@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import PostCard from "../../../components/ui/posts/PostCard";
 
-export default function PostsSection({ posts, canManage }) {
+export default function PostsSection({ posts, canManage, eventId }) {
   const [search, setSearch] = useState("");
 
   const filteredPosts = useMemo(() => {
@@ -51,7 +51,7 @@ export default function PostsSection({ posts, canManage }) {
 
         {canManage && (
           <Link
-            to="/posts/create"
+            to={`/posts/create?eventId=${eventId}`}
             className="bg-brand rounded-base inline-flex items-center justify-center gap-2 self-start px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-95 sm:self-auto"
           >
             <FontAwesomeIcon icon={faPlus} />
@@ -103,7 +103,7 @@ export default function PostsSection({ posts, canManage }) {
           </p>
           {canManage && (
             <Link
-              to="/posts/create"
+              to={`/posts/create?eventId=${eventId}`}
               className="bg-brand rounded-base mt-6 px-5 py-3 text-sm font-medium text-white shadow-xs transition hover:opacity-90"
             >
               Create First Post

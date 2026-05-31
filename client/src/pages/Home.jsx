@@ -68,9 +68,13 @@ export default function Home() {
             postList.map(async (post) => {
               try {
                 const pollRes = await getPoll(priorityEvent.id, post.id);
-                return { ...post, poll: pollRes?.data || null };
+                return {
+                  ...post,
+                  eventId: priorityEvent.id,
+                  poll: pollRes?.data || null,
+                };
               } catch {
-                return { ...post, poll: null };
+                return { ...post, eventId: priorityEvent.id, poll: null };
               }
             }),
           );
@@ -321,7 +325,8 @@ export default function Home() {
                       <div className="flex items-center gap-2">
                         <FontAwesomeIcon
                           icon={faCalendarDays}
-                          className="text-accent"
+                          style={{ color: mood || undefined }}
+                          className={!mood ? "text-brand" : ""}
                         />
                         <span>
                           {new Date(

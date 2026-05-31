@@ -31,12 +31,12 @@ export default function PostCard({
     poll || post?.poll || (post?.postType === "POLL" ? post : null);
 
   const handleNavigate = () => {
-    navigate(`/posts/${post.id}`, { state: { eventId: post.eventId } });
+    navigate(`/posts/${post.eventId}/${post.id}`);
   };
 
   const handleComments = (e) => {
     e.stopPropagation();
-    navigate(`/posts/${post.id}`, { state: { eventId: post.eventId } });
+    navigate(`/posts/${post.eventId}/${post.id}`);
   };
 
   const handleLike = async (e) => {
@@ -80,14 +80,14 @@ export default function PostCard({
         await navigator.share({
           title: post.title,
           text: post.caption,
-          url: window.location.origin + `/posts/${post.id}`,
+          url: window.location.origin + `/posts/${post.eventId}/${post.id}`,
         });
       } catch (error) {
         console.warn("Share cancelled:", error);
       }
     } else {
       await navigator.clipboard.writeText(
-        window.location.origin + `/posts/${post.id}`,
+        window.location.origin + `/posts/${post.eventId}/${post.id}`,
       );
     }
   };
@@ -97,7 +97,7 @@ export default function PostCard({
       postType={post.postType}
       featured={post.isFeatured}
       className={className}
-      to={`/posts/${post.id}`}
+      to={`/posts/${post.eventId}/${post.id}`}
     >
       <div onClick={handleNavigate}>
         <PostMediaGrid media={post.media} />
