@@ -14,16 +14,20 @@ import {
   faFlagCheckered,
 } from "@fortawesome/free-solid-svg-icons";
 
-const TYPE_ICONS = {
-  CEREMONIAL: faFlagCheckered,
-  OPENING: faCalendarCheck,
-  MC: faMicrophone,
-  SHOW: faMusic,
-  CONTEST: faUsers,
-  ICE_BREAKING: faUsers,
-  BREAKS: faClock,
-  CLOSING: faFlagCheckered,
-  OTHER: faCalendarCheck,
+const TYPE_CONFIG = {
+  CEREMONIAL: {
+    icon: faFlagCheckered,
+    color: "text-amber-700",
+    bg: "bg-amber-100",
+  },
+  OPENING: { icon: faCalendarCheck, color: "text-accent", bg: "bg-green-100" },
+  MC: { icon: faMicrophone, color: "text-purple-700", bg: "bg-purple-100" },
+  SHOW: { icon: faMusic, color: "text-pink-700", bg: "bg-pink-100" },
+  CONTEST: { icon: faUsers, color: "text-emerald-700", bg: "bg-emerald-100" },
+  ICE_BREAKING: { icon: faUsers, color: "text-teal-700", bg: "bg-teal-100" },
+  BREAKS: { icon: faClock, color: "text-orange-700", bg: "bg-orange-100" },
+  CLOSING: { icon: faFlagCheckered, color: "text-red-700", bg: "bg-red-100" },
+  OTHER: { icon: faCalendarCheck, color: "text-text-soft", bg: "bg-gray-100" },
 };
 
 export default function TimelineSection({
@@ -40,28 +44,38 @@ export default function TimelineSection({
   const getInitialTimes = () => {
     const start = new Date();
     const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const tzOffset = start.getTimezoneOffset() * 60000;
     return {
-      start: start.toISOString().slice(0, 16),
-      end: end.toISOString().slice(0, 16),
+      start: new Date(start - tzOffset).toISOString().slice(0, 16),
+      end: new Date(end - tzOffset).toISOString().slice(0, 16),
     };
   };
 
   const startEdit = (timeline) => {
     setEditingId(timeline.id);
     setEditForm({
-      name: timeline.name,
+      name: timeline.name || "",
       additional: timeline.additional || "",
-      type: timeline.type,
+      type: timeline.type || "OTHER",
       startAt: timeline.startAt.slice(0, 16),
       endAt: timeline.endAt.slice(0, 16),
     });
   };
 
+  const handleUpdate = async (id, data) => {
+    try {
+      await onUpdate(id, data);
+      setEditingId(null);
+    } catch (err) {
+      alert("Failed to update: " + (err.message || "Unknown error"));
+    }
+  };
+
   return (
-    <div className="space-y-10">
+    <div className="font-body space-y-10">
       {canManage && (
-        <div className="border-border bg-surface rounded-card space-y-5 border p-6 shadow-xs">
-          <h3 className="font-heading text-text text-2xl font-bold">
+        <div className="border-border bg-surface rounded-card space-y-5 border p-8 shadow-sm">
+          <h3 className="font-heading text-text text-3xl font-semibold">
             Add New Milestone
           </h3>
           <form
@@ -77,13 +91,13 @@ export default function TimelineSection({
               name="name"
               placeholder="Activity Name"
               required
-              className="border-border bg-background text-text rounded-card focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
+              className="border-border bg-background text-text rounded-base focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
             />
             <select
               name="type"
-              className="border-border bg-background text-text rounded-card focus:border-brand cursor-pointer border px-4 py-3 text-sm font-medium transition outline-none"
+              className="border-border bg-background text-text rounded-base focus:border-brand cursor-pointer border px-4 py-3 text-sm font-medium transition outline-none"
             >
-              {Object.keys(TYPE_ICONS).map((t) => (
+              {Object.keys(TYPE_CONFIG).map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
@@ -94,150 +108,188 @@ export default function TimelineSection({
               name="startAt"
               defaultValue={getInitialTimes().start}
               required
-              className="border-border bg-background text-text rounded-card focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
+              className="border-border bg-background text-text rounded-base focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
             />
             <input
               type="datetime-local"
               name="endAt"
               defaultValue={getInitialTimes().end}
               required
-              className="border-border bg-background text-text rounded-card focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
+              className="border-border bg-background text-text rounded-base focus:border-brand border px-4 py-3 text-sm font-medium transition outline-none"
             />
             <textarea
               name="additional"
               placeholder="Additional details..."
-              className="border-border bg-background text-text rounded-card focus:border-brand resize-none border p-4 text-sm font-medium transition outline-none md:col-span-2"
+              className="border-border bg-background text-text rounded-base focus:border-brand resize-none border p-4 text-sm font-medium transition outline-none md:col-span-2"
             />
             <button
               type="submit"
-              className="bg-brand rounded-card cursor-pointer px-6 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90 md:col-span-2"
+              className="rounded-base bg-brand cursor-pointer px-6 py-3 text-xs font-bold tracking-widest text-white uppercase transition hover:opacity-90 md:col-span-2"
             >
-              <FontAwesomeIcon icon={faPlus} />
-              Add to Timeline
+              <FontAwesomeIcon icon={faPlus} className="mr-2" /> Add to Timeline
             </button>
           </form>
         </div>
       )}
 
-      <div className="border-border relative ml-4 space-y-12 border-l-2 pl-8 md:ml-8">
-        {timelines
-          .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))
-          .map((t) => {
-            const Icon = TYPE_ICONS[t.type] || faCalendarCheck;
-            const start = new Date(t.startAt);
-            const end = new Date(t.endAt);
-            const isActive = now >= start && now <= end;
+      {timelines.length > 0 && (
+        <div className="relative ml-4 md:ml-4">
+          <div className="bg-border absolute top-4 bottom-4 left-3.75 w-0.5" />
+          <div className="space-y-12">
+            {timelines
+              .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))
+              .map((t) => {
+                const config = TYPE_CONFIG[t.type] || TYPE_CONFIG.OTHER;
+                const start = new Date(t.startAt);
+                const end = new Date(t.endAt);
+                const isPast = now > end;
+                const isActive = now >= start && now <= end;
+                const progress = isActive
+                  ? ((now - start) / (end - start)) * 100
+                  : 0;
 
-            return (
-              <div key={t.id} className="relative">
-                <div
-                  className={`border-brand text-brand absolute top-0 -left-10.25 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white ${isActive ? "ring-brand/20 ring-4" : ""}`}
-                >
-                  <FontAwesomeIcon icon={Icon} size="sm" />
-                </div>
+                return (
+                  <div
+                    key={t.id}
+                    className={`relative flex gap-8 transition-opacity duration-300 ${isPast ? "opacity-60" : "opacity-100"}`}
+                  >
+                    <div
+                      className={`border-background absolute left-0 flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-sm ${config.bg} ${config.color} ${isActive ? "ring-brand ring-2" : ""}`}
+                    >
+                      <FontAwesomeIcon icon={config.icon} size="sm" />
+                    </div>
 
-                {editingId === t.id ? (
-                  <div className="bg-surface rounded-card border-border space-y-3 border p-4">
-                    <input
-                      value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, name: e.target.value })
-                      }
-                      className="border-border w-full border-b bg-transparent p-1 outline-none"
-                    />
-                    <div className="flex gap-2">
-                      <input
-                        type="datetime-local"
-                        value={editForm.startAt}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, startAt: e.target.value })
-                        }
-                        className="rounded border p-1 text-xs"
-                      />
-                      <input
-                        type="datetime-local"
-                        value={editForm.endAt}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, endAt: e.target.value })
-                        }
-                        className="rounded border p-1 text-xs"
-                      />
-                    </div>
-                    <textarea
-                      value={editForm.additional}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, additional: e.target.value })
-                      }
-                      className="w-full rounded border p-1 text-sm"
-                    />
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => {
-                          onUpdate(t.id, editForm);
-                          setEditingId(null);
-                        }}
-                        className="text-brand cursor-pointer"
-                      >
-                        <FontAwesomeIcon icon={faCheck} />
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="cursor-pointer text-rose-600"
-                      >
-                        <FontAwesomeIcon icon={faTimes} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="group">
-                    <div className="flex items-center gap-3">
-                      <span className="text-brand font-mono text-xs font-bold tracking-widest uppercase">
-                        {start.toLocaleDateString()} |{" "}
-                        {start.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}{" "}
-                        -{" "}
-                        {end.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      {isActive && (
-                        <span className="bg-brand/10 text-brand animate-pulse rounded-full px-2 py-0.5 text-[10px] font-bold">
-                          LIVE NOW
-                        </span>
+                    <div className="w-full pl-12">
+                      {editingId === t.id ? (
+                        <div className="bg-surface rounded-card border-border space-y-4 border p-6">
+                          <input
+                            value={editForm.name}
+                            onChange={(e) =>
+                              setEditForm({ ...editForm, name: e.target.value })
+                            }
+                            className="border-border bg-background text-text rounded-base focus:border-brand w-full border px-4 py-3 text-sm font-medium outline-none"
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <input
+                              type="datetime-local"
+                              value={editForm.startAt}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  startAt: e.target.value,
+                                })
+                              }
+                              className="border-border bg-background text-text rounded-base focus:border-brand border px-4 py-3 text-sm outline-none"
+                            />
+                            <input
+                              type="datetime-local"
+                              value={editForm.endAt}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  endAt: e.target.value,
+                                })
+                              }
+                              className="border-border bg-background text-text rounded-base focus:border-brand border px-4 py-3 text-sm outline-none"
+                            />
+                          </div>
+                          <textarea
+                            value={editForm.additional}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                additional: e.target.value,
+                              })
+                            }
+                            className="border-border bg-background text-text rounded-base focus:border-brand w-full resize-none border p-3 text-sm outline-none"
+                            placeholder="Add details..."
+                          />
+                          <div className="flex justify-end gap-3">
+                            <button
+                              onClick={() => handleUpdate(t.id, editForm)}
+                              className="rounded-base bg-brand px-4 py-2 text-sm font-bold text-white"
+                            >
+                              <FontAwesomeIcon icon={faCheck} />
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="rounded-base bg-text-soft px-4 py-2 text-sm font-bold text-white"
+                            >
+                              <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="group">
+                          <div className="text-brand flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-widest uppercase">
+                            <span>
+                              {start.toLocaleDateString()}{" "}
+                              {start.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            <span>-</span>
+                            <span>
+                              {end.toLocaleDateString()}{" "}
+                              {end.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            {isActive && (
+                              <span className="bg-brand/10 animate-pulse rounded-full px-2 py-0.5">
+                                LIVE NOW
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="font-heading text-text mt-1 text-3xl font-semibold">
+                            {t.name}
+                          </h4>
+                          {isActive && (
+                            <div className="bg-border/30 mt-2 h-1 w-full max-w-sm rounded-full">
+                              <div
+                                className="bg-brand h-full rounded-full transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          )}
+                          <p className="text-text-soft mt-1 max-w-xl text-sm leading-relaxed">
+                            {t.additional}
+                          </p>
+                          {canManage && (
+                            <div className="mt-3 flex gap-4 opacity-0 transition group-hover:opacity-100">
+                              <button
+                                onClick={() => startEdit(t)}
+                                className="text-text-soft hover:text-brand text-sm"
+                              >
+                                <FontAwesomeIcon
+                                  icon={faEdit}
+                                  className="mr-1"
+                                />{" "}
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => onDelete(t.id)}
+                                className="text-text-soft text-sm hover:text-red-600"
+                              >
+                                <FontAwesomeIcon
+                                  icon={faTrash}
+                                  className="mr-1"
+                                />{" "}
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
-                    <h4 className="font-heading text-text mt-1 text-2xl font-semibold">
-                      {t.name}
-                    </h4>
-                    <p className="text-text-soft mt-1 max-w-lg text-sm">
-                      {t.additional}
-                    </p>
-
-                    {canManage && (
-                      <div className="mt-3 flex gap-3 opacity-0 transition group-hover:opacity-100">
-                        <button
-                          onClick={() => startEdit(t)}
-                          className="text-text-soft hover:text-brand cursor-pointer"
-                        >
-                          <FontAwesomeIcon icon={faEdit} />
-                        </button>
-                        <button
-                          onClick={() => onDelete(t.id)}
-                          className="text-text-soft cursor-pointer hover:text-rose-600"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      </div>
-                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
-      </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

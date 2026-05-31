@@ -14,14 +14,14 @@ export const createQna = async (eventId, data) => {
 };
 
 // question, answer
-export const updateQna = async (eventId, data) => {
-  const response = await api.patch(`/events/${eventId}/qnas`, data);
+export const updateQna = async (eventId, qnaId, data) => {
+  const response = await api.patch(`/events/${eventId}/qnas/${qnaId}`, data);
 
   return response.data;
 };
 
-export const deleteQna = async (eventId) => {
-  const response = await api.delete(`/events/${eventId}/qnas`);
+export const deleteQna = async (eventId, qnaId) => {
+  const response = await api.delete(`/events/${eventId}/qnas/${qnaId}`);
 
   return response.data;
 };
