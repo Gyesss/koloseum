@@ -54,7 +54,7 @@ export default function CreateEvent() {
     event.preventDefault();
 
     try {
-      loading(true);
+      setLoading(true);
 
       if (!form.startAt || !form.endAt) {
         alert("Start and end date are required");
