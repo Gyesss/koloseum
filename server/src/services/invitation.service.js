@@ -18,13 +18,16 @@ export const sendInvitation = async (data, user) => {
   };
 
   try {
-    const res = await fetch("http://localhost:4001/send-invitation", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.INVITATION_API_URL}/send-invitation`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+    );
 
     const text = await res.text();
 

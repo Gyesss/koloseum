@@ -9,6 +9,7 @@ import qrcode from "qrcode-terminal";
 import pino from "pino";
 import { Boom } from "@hapi/boom";
 
+const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(express.json());
 
@@ -151,7 +152,7 @@ app.get("/health", (req, res) => {
  * START
  * ======================
  */
-app.listen(4001, () => {
-  console.log("🚀 Bot running on http://localhost:4001");
+app.listen(PORT, () => {
+  console.log(`🚀 Bot running on port ${PORT}`);
   startBot();
 });

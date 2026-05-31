@@ -32,6 +32,7 @@ export const findEvents = () => {
       id: true,
       name: true,
       tagline: true,
+      description: true,
       location: true,
       startAt: true,
       endAt: true,
