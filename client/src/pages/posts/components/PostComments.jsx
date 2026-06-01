@@ -145,7 +145,6 @@ export default function PostComments({
 
   return (
     <div className="bg-surface border-border rounded-card overflow-hidden border shadow-sm">
-      {/* HEADER */}
       <div className="border-border border-b px-6 py-4">
         <h3 className="font-heading text-text text-xl font-bold">
           Comments{" "}
@@ -155,7 +154,6 @@ export default function PostComments({
         </h3>
       </div>
 
-      {/* INPUT */}
       <div className="border-border border-b px-6 py-4">
         {user ? (
           <form onSubmit={handleSubmit} className="flex gap-3">
@@ -198,7 +196,6 @@ export default function PostComments({
         )}
       </div>
 
-      {/* LIST */}
       <div className="divide-border divide-y">
         {comments.length === 0 ? (
           <div className="px-6 py-10 text-center">
@@ -217,7 +214,6 @@ export default function PostComments({
 
             return (
               <div key={comment.id} className="flex gap-3 px-6 py-4">
-                {/* AVATAR */}
                 <Link
                   to={`/users/${comment.user?.id}`}
                   className="shrink-0"
@@ -239,35 +235,39 @@ export default function PostComments({
                 </Link>
 
                 <div className="min-w-0 flex-1">
-                  {/* NAME ROW */}
-                  <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <Link
-                      to={`/users/${comment.user?.id}`}
-                      className="text-text hover:text-brand text-xs font-bold transition"
-                      onClick={(e) => !comment.user?.id && e.preventDefault()}
-                    >
-                      {comment.user?.fullName ||
-                        comment.user?.username ||
-                        "Unknown"}
-                    </Link>
-                    {comment.user?.username && comment.user?.fullName && (
-                      <span className="text-text-soft text-[11px]">
-                        @{comment.user.username}
-                      </span>
-                    )}
-                    {comment.user?.role && (
-                      <span
-                        className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${roleStyle}`}
-                      >
-                        {comment.user.role}
-                      </span>
-                    )}
-                    <span className="text-text-soft/50 ml-auto text-[11px]">
+                  <div className="mb-1.5 flex items-start justify-between gap-2">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/users/${comment.user?.id}`}
+                          className="text-text hover:text-brand text-xs font-bold transition"
+                          onClick={(e) =>
+                            !comment.user?.id && e.preventDefault()
+                          }
+                        >
+                          {comment.user?.fullName ||
+                            comment.user?.username ||
+                            "Unknown"}
+                        </Link>
+                        {comment.user?.role && (
+                          <span
+                            className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${roleStyle}`}
+                          >
+                            {comment.user.role}
+                          </span>
+                        )}
+                      </div>
+                      {comment.user?.username && (
+                        <span className="text-text-soft text-[11px]">
+                          @{comment.user.username}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-text-soft/50 shrink-0 text-[11px]">
                       {timeAgo(comment.createdAt)}
                     </span>
                   </div>
 
-                  {/* CONTENT or EDIT FORM */}
                   {isEditing ? (
                     <div className="flex gap-2">
                       <input
@@ -300,7 +300,6 @@ export default function PostComments({
                     </p>
                   )}
 
-                  {/* FOOTER ACTIONS */}
                   {!isEditing && (
                     <div className="mt-2 flex items-center gap-3">
                       <button
