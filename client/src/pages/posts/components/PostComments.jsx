@@ -1,12 +1,26 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHeart,
   faUser,
   faPaperPlane,
+  faPen,
+  faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { createComment, deleteComment } from "../../../api/comments";
+import {
+  createComment,
+  updateComment,
+  deleteComment,
+} from "../../../api/comments";
 import { likeComment, unlikeComment } from "../../../api/comment-likes";
+
+const ROLE_STYLES = {
+  ADMIN: "bg-rose-500/15 text-rose-600",
+  ORGANIZER: "bg-violet-500/15 text-violet-600",
+  MEMBER: "bg-blue-500/15 text-blue-600",
+};
 
 function timeAgo(dateStr) {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
@@ -25,6 +39,8 @@ export default function PostComments({
   const [comments, setComments] = useState(initial || []);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,8 +50,7 @@ export default function PostComments({
       const res = await createComment(eventId, postId, {
         content: content.trim(),
       });
-      const newComment = res?.data || res;
-      setComments((prev) => [newComment, ...prev]);
+      setComments((prev) => [res?.data || res, ...prev]);
       setContent("");
     } catch (err) {
       console.error("Comment failed:", err);
@@ -47,7 +62,6 @@ export default function PostComments({
   const handleLikeComment = async (comment) => {
     if (!user) return;
     const wasLiked = comment.isLiked;
-    // Optimistic update
     setComments((prev) =>
       prev.map((c) =>
         c.id === comment.id
@@ -71,7 +85,6 @@ export default function PostComments({
         await likeComment(eventId, postId, comment.id);
       }
     } catch (err) {
-      // Revert on failure
       setComments((prev) =>
         prev.map((c) =>
           c.id === comment.id
@@ -92,6 +105,34 @@ export default function PostComments({
     }
   };
 
+  const startEdit = (comment) => {
+    setEditingId(comment.id);
+    setEditContent(comment.content);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditContent("");
+  };
+
+  const handleEditSubmit = async (commentId) => {
+    if (!editContent.trim()) return;
+    try {
+      const res = await updateComment(eventId, postId, commentId, {
+        content: editContent.trim(),
+      });
+      const updated = res?.data || res;
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId ? { ...c, content: updated.content } : c,
+        ),
+      );
+      cancelEdit();
+    } catch (err) {
+      console.error("Edit comment failed:", err);
+    }
+  };
+
   const handleDeleteComment = async (commentId) => {
     if (!window.confirm("Delete this comment?")) return;
     try {
@@ -103,121 +144,207 @@ export default function PostComments({
   };
 
   return (
-    <div className="space-y-5">
-      <h3 className="font-heading text-text text-xl font-bold">
-        Comments{" "}
-        <span className="text-text-soft text-base font-normal">
-          ({comments.length})
-        </span>
-      </h3>
+    <div className="bg-surface border-border rounded-card overflow-hidden border shadow-sm">
+      {/* HEADER */}
+      <div className="border-border border-b px-6 py-4">
+        <h3 className="font-heading text-text text-xl font-bold">
+          Comments{" "}
+          <span className="text-text-soft text-base font-normal">
+            ({comments.length})
+          </span>
+        </h3>
+      </div>
 
-      {/* COMMENT INPUT */}
-      {user ? (
-        <form onSubmit={handleSubmit} className="flex gap-3">
-          <div className="border-brand bg-border/20 h-8 w-8 shrink-0 overflow-hidden rounded-full border">
-            {user.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user.fullName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
-                <FontAwesomeIcon icon={faUser} />
+      {/* INPUT */}
+      <div className="border-border border-b px-6 py-4">
+        {user ? (
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <Link to={`/users/${user.id}`} className="shrink-0">
+              <div className="border-brand bg-border/20 h-9 w-9 overflow-hidden rounded-full border transition hover:opacity-80">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
+                    <FontAwesomeIcon icon={faUser} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="flex flex-1 gap-2">
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="border-border bg-background text-text placeholder:text-text-soft/50 focus:border-brand rounded-card flex-1 border px-4 py-2.5 text-sm font-medium transition outline-none"
-            />
-            <button
-              type="submit"
-              disabled={submitting || !content.trim()}
-              className="bg-brand rounded-card cursor-pointer px-4 py-2.5 text-white transition hover:opacity-90 disabled:opacity-50"
-            >
-              <FontAwesomeIcon icon={faPaperPlane} className="text-sm" />
-            </button>
-          </div>
-        </form>
-      ) : (
-        <p className="text-text-soft border-border rounded-card border px-4 py-3 text-sm">
-          Login to leave a comment.
-        </p>
-      )}
+            </Link>
+            <div className="flex flex-1 gap-2">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="border-border bg-background text-text placeholder:text-text-soft/50 focus:border-brand rounded-card flex-1 border px-4 py-2.5 text-sm font-medium transition outline-none"
+              />
+              <button
+                type="submit"
+                disabled={submitting || !content.trim()}
+                className="bg-brand rounded-card cursor-pointer px-4 py-2.5 text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                <FontAwesomeIcon icon={faPaperPlane} className="text-sm" />
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="text-text-soft border-border rounded-card border px-4 py-3 text-sm">
+            Login to leave a comment.
+          </p>
+        )}
+      </div>
 
-      {/* COMMENT LIST */}
-      {comments.length === 0 ? (
-        <p className="text-text-soft text-sm">No comments yet. Be the first!</p>
-      ) : (
-        <div className="space-y-4">
-          {comments.map((comment) => {
+      {/* LIST */}
+      <div className="divide-border divide-y">
+        {comments.length === 0 ? (
+          <div className="px-6 py-10 text-center">
+            <p className="text-text-soft text-sm">
+              No comments yet. Be the first!
+            </p>
+          </div>
+        ) : (
+          comments.map((comment) => {
+            const canEdit = user && user.id === comment.userId;
             const canDelete =
               user && (user.id === comment.userId || user.role === "ADMIN");
+            const roleStyle =
+              ROLE_STYLES[comment.user?.role] || ROLE_STYLES.MEMBER;
+            const isEditing = editingId === comment.id;
 
             return (
-              <div key={comment.id} className="flex gap-3">
-                <div className="bg-border/20 h-8 w-8 shrink-0 overflow-hidden rounded-full">
-                  {comment.user?.avatarUrl ? (
-                    <img
-                      src={comment.user.avatarUrl}
-                      alt={comment.user.fullName}
-                      className="h-full w-full object-cover"
-                    />
+              <div key={comment.id} className="flex gap-3 px-6 py-4">
+                {/* AVATAR */}
+                <Link
+                  to={`/users/${comment.user?.id}`}
+                  className="shrink-0"
+                  onClick={(e) => !comment.user?.id && e.preventDefault()}
+                >
+                  <div className="bg-border/20 border-border hover:border-brand h-9 w-9 overflow-hidden rounded-full border transition">
+                    {comment.user?.avatarUrl ? (
+                      <img
+                        src={comment.user.avatarUrl}
+                        alt={comment.user.fullName}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
+                        <FontAwesomeIcon icon={faUser} />
+                      </div>
+                    )}
+                  </div>
+                </Link>
+
+                <div className="min-w-0 flex-1">
+                  {/* NAME ROW */}
+                  <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <Link
+                      to={`/users/${comment.user?.id}`}
+                      className="text-text hover:text-brand text-xs font-bold transition"
+                      onClick={(e) => !comment.user?.id && e.preventDefault()}
+                    >
+                      {comment.user?.fullName ||
+                        comment.user?.username ||
+                        "Unknown"}
+                    </Link>
+                    {comment.user?.username && comment.user?.fullName && (
+                      <span className="text-text-soft text-[11px]">
+                        @{comment.user.username}
+                      </span>
+                    )}
+                    {comment.user?.role && (
+                      <span
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${roleStyle}`}
+                      >
+                        {comment.user.role}
+                      </span>
+                    )}
+                    <span className="text-text-soft/50 ml-auto text-[11px]">
+                      {timeAgo(comment.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* CONTENT or EDIT FORM */}
+                  {isEditing ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleEditSubmit(comment.id);
+                          if (e.key === "Escape") cancelEdit();
+                        }}
+                        className="border-border bg-background text-text focus:border-brand rounded-card flex-1 border px-3 py-1.5 text-sm font-medium transition outline-none"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleEditSubmit(comment.id)}
+                        className="text-brand cursor-pointer p-1.5 transition hover:opacity-70"
+                      >
+                        <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="text-text-soft hover:text-text cursor-pointer p-1.5 transition"
+                      >
+                        <FontAwesomeIcon icon={faXmark} className="text-xs" />
+                      </button>
+                    </div>
                   ) : (
-                    <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
-                      <FontAwesomeIcon icon={faUser} />
+                    <p className="text-text text-sm leading-relaxed wrap-break-word">
+                      {comment.content}
+                    </p>
+                  )}
+
+                  {/* FOOTER ACTIONS */}
+                  {!isEditing && (
+                    <div className="mt-2 flex items-center gap-3">
+                      <button
+                        onClick={() => handleLikeComment(comment)}
+                        disabled={!user}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition disabled:opacity-40 ${
+                          comment.isLiked
+                            ? "text-rose-500"
+                            : "text-text-soft hover:text-rose-500"
+                        }`}
+                      >
+                        <FontAwesomeIcon icon={faHeart} />
+                        <span>{comment._count?.commentLikes || 0}</span>
+                      </button>
+
+                      {canEdit && (
+                        <button
+                          onClick={() => startEdit(comment)}
+                          className="text-text-soft hover:text-text flex items-center gap-1 text-xs font-semibold transition"
+                        >
+                          <FontAwesomeIcon
+                            icon={faPen}
+                            className="text-[10px]"
+                          />
+                          Edit
+                        </button>
+                      )}
+
+                      {canDelete && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          className="text-text-soft text-xs font-semibold transition hover:text-rose-600"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
-
-                <div className="flex-1">
-                  <div className="bg-background rounded-card px-4 py-3">
-                    <div className="mb-1 flex items-center justify-between gap-2">
-                      <span className="text-text text-xs font-bold">
-                        {comment.user?.fullName || comment.user?.username}
-                      </span>
-                      <span className="text-text-soft text-[11px]">
-                        {timeAgo(comment.createdAt)}
-                      </span>
-                    </div>
-                    <p className="text-text text-sm leading-relaxed">
-                      {comment.content}
-                    </p>
-                  </div>
-
-                  <div className="mt-1.5 flex items-center gap-3 px-1">
-                    <button
-                      onClick={() => handleLikeComment(comment)}
-                      className={`flex items-center gap-1.5 text-xs font-semibold transition ${
-                        comment.isLiked
-                          ? "text-rose-500"
-                          : "text-text-soft hover:text-rose-500"
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faHeart} />
-                      <span>{comment._count?.commentLikes || 0}</span>
-                    </button>
-
-                    {canDelete && (
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        className="text-text-soft text-xs font-semibold transition hover:text-rose-600"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
               </div>
             );
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
     </div>
   );
 }

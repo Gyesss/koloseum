@@ -10,6 +10,9 @@ import {
   faTrash,
   faUser,
   faStar,
+  faComment,
+  faShareNodes,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { getPostById, deletePost } from "../../api/posts";
@@ -54,6 +57,7 @@ export default function PostDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [likeSubmitting, setLikeSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function loadAll() {
@@ -71,7 +75,6 @@ export default function PostDetail() {
         setLikesCount(postData._count?.postLikes || 0);
         setComments(commentsRes?.data || commentsRes || []);
 
-        // Fetch event detail and poll in parallel
         const [eventRes, pollRes] = await Promise.allSettled([
           getEventById(eventId),
           getPoll(eventId, postId),
@@ -110,6 +113,21 @@ export default function PostDetail() {
       console.error("Like failed:", err);
     } finally {
       setLikeSubmitting(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post?.title, url });
+      } catch {
+        // cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -164,7 +182,7 @@ export default function PostDetail() {
 
   return (
     <div className="bg-background text-text font-body min-h-dvh px-4 py-8 pb-28 sm:px-6 md:pb-8 md:pl-28 lg:px-10 lg:pl-32">
-      <div className="mx-auto max-w-3xl space-y-8">
+      <div className="mx-auto max-w-3xl space-y-6">
         {/* BACK */}
         <button
           type="button"
@@ -179,19 +197,26 @@ export default function PostDetail() {
         </button>
 
         {/* MAIN CARD */}
-        <div
-          className="rounded-card overflow-hidden border shadow-xs"
-          style={{ borderColor: mood ? `${mood}55` : undefined }}
-        >
-          {/* MOOD TOP STRIPE */}
-          {mood && (
-            <div className="h-1 w-full" style={{ backgroundColor: mood }} />
-          )}
+        <div className="bg-surface border-border rounded-card w-full overflow-hidden border shadow-sm">
+          {/* TOP ACCENT STRIPE */}
+          <div
+            className="h-2 w-full"
+            style={
+              mood
+                ? {
+                    background: `linear-gradient(to right, ${mood}66, ${mood}, ${mood}aa)`,
+                  }
+                : {
+                    background:
+                      "linear-gradient(to right, var(--color-border), var(--color-brand), var(--color-accent))",
+                  }
+            }
+          />
 
           {/* MEDIA */}
           {post.media?.length > 0 && <PostMediaViewer media={post.media} />}
 
-          <div className="space-y-5 p-6">
+          <div className="space-y-5 p-8 sm:p-10">
             {/* BADGES */}
             <div className="flex flex-wrap items-center gap-2">
               {typeStyle && (
@@ -214,27 +239,46 @@ export default function PostDetail() {
               {post.title}
             </h1>
 
-            {/* META */}
+            {/* AUTHOR + META */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              {/* AUTHOR */}
-              <div className="flex items-center gap-2">
-                <div className="bg-border/20 h-7 w-7 overflow-hidden rounded-full">
-                  {owner?.avatarUrl ? (
-                    <img
-                      src={owner.avatarUrl}
-                      alt={owner.fullName}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
+              {/* AUTHOR — clickable, links to /users/:userId */}
+              {owner ? (
+                <Link
+                  to={`/users/${owner.id}`}
+                  className="group flex items-center gap-2 transition"
+                >
+                  <div className="bg-border/20 border-border group-hover:border-brand h-7 w-7 overflow-hidden rounded-full border transition">
+                    {owner.avatarUrl ? (
+                      <img
+                        src={owner.avatarUrl}
+                        alt={owner.fullName}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
+                        <FontAwesomeIcon icon={faUser} />
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className="text-text-soft group-hover:text-text text-xs font-medium transition"
+                    style={{ "--tw-text-opacity": 1 }}
+                  >
+                    {owner.fullName || owner.username}
+                  </span>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="bg-border/20 h-7 w-7 overflow-hidden rounded-full">
                     <div className="text-text-soft flex h-full w-full items-center justify-center text-xs">
                       <FontAwesomeIcon icon={faUser} />
                     </div>
-                  )}
+                  </div>
+                  <span className="text-text-soft text-xs font-medium">
+                    Unknown
+                  </span>
                 </div>
-                <span className="text-text-soft text-xs font-medium">
-                  {owner?.fullName || owner?.username || "Unknown"}
-                </span>
-              </div>
+              )}
 
               <span className="text-text-soft/40 text-xs">·</span>
               <span className="text-text-soft text-xs">
@@ -246,8 +290,8 @@ export default function PostDetail() {
                   <span className="text-text-soft/40 text-xs">·</span>
                   <Link
                     to={`/events/${eventId}`}
-                    className="text-text-soft hover:text-text flex items-center gap-1.5 text-xs transition"
-                    style={{ color: mood || undefined }}
+                    className="flex items-center gap-1.5 text-xs transition hover:opacity-80"
+                    style={{ color: mood || "var(--color-brand)" }}
                   >
                     <FontAwesomeIcon
                       icon={faCalendarDays}
@@ -281,22 +325,47 @@ export default function PostDetail() {
 
             {/* ACTIONS BAR */}
             <div
-              className="flex items-center justify-between border-t pt-4"
+              className="flex items-center justify-between border-t pt-5"
               style={{ borderColor: mood ? `${mood}33` : undefined }}
             >
-              <button
-                onClick={handleLike}
-                disabled={!user || likeSubmitting}
-                className={`flex items-center gap-2 text-sm font-semibold transition ${
-                  isLiked
-                    ? "text-rose-500"
-                    : "text-text-soft hover:text-rose-500"
-                } disabled:opacity-50`}
-              >
-                <FontAwesomeIcon icon={faHeart} />
-                <span>{likesCount}</span>
-              </button>
+              {/* LEFT: like, comment count, share */}
+              <div className="flex items-center gap-5">
+                <button
+                  onClick={handleLike}
+                  disabled={!user || likeSubmitting}
+                  className={`flex items-center gap-2 text-sm font-medium transition-all duration-200 disabled:opacity-50 ${
+                    isLiked
+                      ? "scale-[1.03] text-rose-500"
+                      : "text-text-soft hover:text-rose-500"
+                  }`}
+                >
+                  <FontAwesomeIcon
+                    icon={faHeart}
+                    className={`transition-transform duration-200 ${isLiked ? "scale-110" : ""}`}
+                  />
+                  <span>{likesCount}</span>
+                </button>
 
+                <div className="text-text-soft flex items-center gap-2 text-sm font-medium">
+                  <FontAwesomeIcon icon={faComment} />
+                  <span>{comments.length}</span>
+                </div>
+
+                <button
+                  onClick={handleShare}
+                  className={`flex cursor-pointer items-center gap-1.5 text-sm transition ${
+                    copied ? "text-brand" : "text-text-soft hover:text-text"
+                  }`}
+                  title={copied ? "Link copied!" : "Share"}
+                >
+                  <FontAwesomeIcon icon={copied ? faCheck : faShareNodes} />
+                  {copied && (
+                    <span className="text-xs font-medium">Copied!</span>
+                  )}
+                </button>
+              </div>
+
+              {/* RIGHT: edit / delete */}
               {canManage && (
                 <div className="flex items-center gap-2">
                   <button

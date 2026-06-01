@@ -4,7 +4,7 @@ import RequireGuest from "../components/auth/RequireGuest";
 import RequireAccess from "../components/auth/RequireAccess";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
-// import DashboardLayout from "../layouts/DashboardLayout";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 import Home from "../pages/Home";
 import Privacy from "../pages/Privacy";
@@ -28,7 +28,7 @@ import PostDetail from "../pages/posts/PostDetail";
 import CreatePost from "../pages/posts/CreatePost";
 import EditPost from "../pages/posts/EditPost";
 
-// import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/Dashboard";
 
 import Register from "../pages/Register";
 import Login from "../pages/Login";
@@ -87,11 +87,11 @@ function AppRoutes() {
           </Route>
         </Route>
 
-        {/* <Route element={<RequireAccess roles={["ADMIN", "ORGANIZER"]} />}>
+        <Route element={<RequireAccess roles={["403"]} />}>
           <Route path="dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
           </Route>
-        </Route> */}
+        </Route>
 
         <Route path="403" element={<Forbidden />} />
         <Route path="*" element={<NotFound />} />
