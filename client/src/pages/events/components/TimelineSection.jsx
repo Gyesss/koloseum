@@ -105,14 +105,20 @@ export default function TimelineSection({
     return `${minutes} minute${minutes !== 1 ? "s" : ""} left`;
   };
 
+  const toLocalInputValue = (isoString) => {
+    const date = new Date(isoString);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date - tzOffset).toISOString().slice(0, 16);
+  };
+
   const startEdit = (timeline) => {
     setEditingId(timeline.id);
     setEditForm({
       name: timeline.name || "",
       additional: timeline.additional || "",
       type: timeline.type || "OTHER",
-      startAt: timeline.startAt.slice(0, 16),
-      endAt: timeline.endAt.slice(0, 16),
+      startAt: toLocalInputValue(timeline.startAt),
+      endAt: toLocalInputValue(timeline.endAt),
     });
   };
 
@@ -123,6 +129,16 @@ export default function TimelineSection({
     } catch (err) {
       alert("Failed to update: " + (err.message || "Unknown error"));
     }
+  };
+
+  const getTimeRemaining = (endDate) => {
+    const diff = endDate - now;
+    if (diff <= 0) return null;
+    const totalMinutes = Math.floor(diff / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours > 0) return `${hours}h ${minutes}m remaining`;
+    return `${minutes}m remaining`;
   };
 
   return (
@@ -315,11 +331,16 @@ export default function TimelineSection({
                             {t.name}
                           </h4>
                           {isActive && (
-                            <div className="bg-border/30 mt-2 h-1 w-full max-w-sm rounded-full">
-                              <div
-                                className="bg-brand h-full rounded-full transition-all duration-500"
-                                style={{ width: `${progress}%` }}
-                              />
+                            <div className="mt-2 flex max-w-sm items-center gap-3">
+                              <div className="bg-border/30 h-1 flex-1 rounded-full">
+                                <div
+                                  className="bg-brand h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <span className="text-text-soft text-[10px] font-bold tracking-widest whitespace-nowrap uppercase">
+                                {getTimeRemaining(end)}
+                              </span>
                             </div>
                           )}
                           <p className="text-text-soft mt-1 max-w-xl text-sm leading-relaxed">
