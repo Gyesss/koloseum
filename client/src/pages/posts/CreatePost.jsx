@@ -427,7 +427,7 @@ export default function CreatePost() {
               <input
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/jpeg, image/png, image/webp, image/gif, video/mp4, video/webm"
                 onChange={handleFileChange}
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               />

@@ -278,7 +278,7 @@ export default function CreateEvent() {
 
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg, image/png, image/webp*"
               onChange={handleBannerChange}
               className="bg-background border-border rounded-base text-text file:bg-brand w-full border px-4 py-3 file:mr-4 file:rounded-md file:border-0 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
             />

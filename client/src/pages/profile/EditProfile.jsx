@@ -152,7 +152,7 @@ export default function EditProfile() {
                 Change Banner
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg, image/png, image/webp"
                   className="hidden"
                   onChange={handleBannerChange}
                 />
@@ -178,7 +178,7 @@ export default function EditProfile() {
 
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                       className="hidden"
                       onChange={handleAvatarChange}
                     />
