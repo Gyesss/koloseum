@@ -5,7 +5,6 @@ import makeWASocket, {
   DisconnectReason,
 } from "@whiskeysockets/baileys";
 
-import qrcode from "qrcode-terminal";
 import pino from "pino";
 import { Boom } from "@hapi/boom";
 
@@ -32,12 +31,24 @@ async function startBot() {
     printQRInTerminal: false,
   });
 
-  sock.ev.on("connection.update", (update) => {
-    const { connection, qr, lastDisconnect } = update;
+  let pairingCodePrinted = false;
 
-    if (qr) {
-      console.log("📱 Scan QR:");
-      qrcode.generate(qr, { small: true });
+  sock.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect } = update;
+
+    if (!sock.authState.creds.registered && !pairingCodePrinted) {
+      pairingCodePrinted = true;
+
+      const phoneNumber = process.env.WHATSAPP_NUMBER;
+
+      const code = await sock.requestPairingCode(phoneNumber);
+
+      console.log("");
+      console.log("==================================");
+      console.log("📱 PAIRING CODE:");
+      console.log(code);
+      console.log("==================================");
+      console.log("");
     }
 
     if (connection === "open") {
@@ -49,6 +60,7 @@ async function startBot() {
       isReady = false;
 
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
+
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
       console.log("❌ BOT DISCONNECTED");
