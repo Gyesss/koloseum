@@ -31,24 +31,33 @@ async function startBot() {
     printQRInTerminal: false,
   });
 
-  let pairingCodePrinted = false;
+  let pairingCodeRequested = false;
 
   sock.ev.on("connection.update", async (update) => {
-    const { connection, lastDisconnect } = update;
+    const { connection, qr, lastDisconnect } = update;
 
-    if (!sock.authState.creds.registered && !pairingCodePrinted) {
-      pairingCodePrinted = true;
+    // Request pairing code when QR would appear (socket is ready)
+    if (qr && !pairingCodeRequested && !sock.authState.creds.registered) {
+      pairingCodeRequested = true;
 
       const phoneNumber = process.env.WHATSAPP_NUMBER;
 
-      const code = await sock.requestPairingCode(phoneNumber);
+      if (!phoneNumber) {
+        console.error("❌ WHATSAPP_NUMBER is not set in .env");
+        process.exit(1);
+      }
 
-      console.log("");
-      console.log("==================================");
-      console.log("📱 PAIRING CODE:");
-      console.log(code);
-      console.log("==================================");
-      console.log("");
+      try {
+        const code = await sock.requestPairingCode(phoneNumber);
+        console.log("\n==================================");
+        console.log("📱 PAIRING CODE:", code);
+        console.log("==================================");
+        console.log(
+          "Enter this code in WhatsApp > Linked Devices > Link with phone number\n",
+        );
+      } catch (err) {
+        console.error("❌ Failed to get pairing code:", err.message);
+      }
     }
 
     if (connection === "open") {
@@ -60,14 +69,15 @@ async function startBot() {
       isReady = false;
 
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
-
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-      console.log("❌ BOT DISCONNECTED");
+      console.log("❌ BOT DISCONNECTED, code:", statusCode);
 
       if (shouldReconnect) {
         console.log("🔄 Reconnecting...");
         startBot();
+      } else {
+        console.log("🚫 Logged out. Delete auth_info folder and restart.");
       }
     }
   });
@@ -77,7 +87,7 @@ async function startBot() {
 
 /**
  * ======================
- * SEND INVITATION API (FIXED)
+ * SEND INVITATION API
  * ======================
  */
 app.post("/send-invitation", async (req, res) => {
@@ -99,13 +109,12 @@ app.post("/send-invitation", async (req, res) => {
     });
   }
 
-  // IMPORTANT: respond immediately
+  // Respond immediately, process in background
   res.status(202).json({
     success: true,
     message: "Invitation queued",
   });
 
-  // background processing (non-blocking HTTP)
   setImmediate(async () => {
     try {
       console.log("🚀 Processing invitations...");
@@ -135,14 +144,16 @@ ${event.tagline}
             image: event.bannerUrl ? { url: event.bannerUrl } : undefined,
             caption: message,
           });
+
+          console.log("✅ Sent to:", jid);
         } catch (err) {
-          console.log("❌ FAILED SEND TO:", phone, err.message);
+          console.error("❌ FAILED SEND TO:", phone, err.message);
         }
       }
 
       console.log("✅ All invitations processed");
     } catch (err) {
-      console.log("❌ BACKGROUND ERROR:", err);
+      console.error("❌ BACKGROUND ERROR:", err);
     }
   });
 });
