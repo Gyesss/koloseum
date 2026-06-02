@@ -159,7 +159,7 @@ export default function Demo() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
           <h1 className="text-5xl font-bold text-stone-900">
-            Post Card Showcase
+            Post Card Showcase (1)
           </h1>
           <p className="mt-3 text-stone-600">
             Masonry-like responsive feed with variable content height.
