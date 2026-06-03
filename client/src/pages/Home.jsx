@@ -18,27 +18,41 @@ import { getPoll } from "../api/polls";
 import PostCard from "../components/ui/posts/PostCard";
 import useAuth from "../hooks/useAuth";
 
+const getEventStatus = (event) => {
+  const now = new Date();
+
+  const startAt = new Date(event.startAt);
+  const endAt = new Date(event.endAt);
+
+  if (now < startAt) {
+    return "UPCOMING";
+  }
+
+  if (now >= startAt && now <= endAt) {
+    return "ONGOING";
+  }
+
+  return "ARCHIVED";
+};
+
 const determinePriorityEvent = (eventList) => {
-  if (!eventList || eventList.length === 0) return null;
+  if (!eventList?.length) return null;
 
-  const now = new Date("2026-05-30T21:00:00Z");
+  const priorityEvent =
+    eventList.find((e) => getEventStatus(e) === "ONGOING") ||
+    [...eventList]
+      .filter((e) => getEventStatus(e) === "UPCOMING")
+      .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))[0] ||
+    [...eventList]
+      .filter((e) => getEventStatus(e) === "ARCHIVED")
+      .sort((a, b) => new Date(b.endAt) - new Date(a.endAt))[0];
 
-  const active = eventList.find(
-    (e) => new Date(e.startAt) <= now && new Date(e.endAt) >= now,
-  );
-  if (active) return { data: active, status: "LIVE NOW" };
+  if (!priorityEvent) return null;
 
-  const upcoming = [...eventList]
-    .filter((e) => new Date(e.startAt) > now)
-    .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))[0];
-  if (upcoming) return { data: upcoming, status: "UPCOMING" };
-
-  const past = [...eventList]
-    .filter((e) => new Date(e.endAt) < now)
-    .sort((a, b) => new Date(b.endAt) - new Date(a.endAt))[0];
-  if (past) return { data: past, status: "ARCHIVED MEMORIAL" };
-
-  return { data: eventList[0], status: "FEATURED" };
+  return {
+    data: priorityEvent,
+    status: getEventStatus(priorityEvent),
+  };
 };
 
 export default function Home() {
@@ -216,16 +230,14 @@ export default function Home() {
                 </h2>
                 {priorityResult && (
                   <span
-                    className="rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
+                    className="bg-brand/15 text-brand rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
                     style={
                       mood
-                        ? { backgroundColor: `${mood}22`, color: mood }
-                        : { backgroundColor: undefined }
-                    }
-                    className={
-                      !mood
-                        ? "bg-brand/15 text-brand rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
-                        : "rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase"
+                        ? {
+                            backgroundColor: `${mood}22`,
+                            color: mood,
+                          }
+                        : undefined
                     }
                   >
                     {priorityResult.status}
@@ -245,23 +257,92 @@ export default function Home() {
                       : undefined
                   }
                 >
-                  {/* BANNER */}
+                  {/* BANNER — with fallback when bannerUrl is missing */}
                   <div className="relative h-72 w-full">
-                    <img
-                      src={priorityResult.data.bannerUrl}
-                      alt={priorityResult.data.name}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
+                    {priorityResult.data.bannerUrl ? (
+                      <>
+                        <img
+                          src={priorityResult.data.bannerUrl}
+                          alt={priorityResult.data.name}
+                          className="h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
 
-                    {/* MOOD RADIAL GLOW over banner */}
-                    {mood && (
+                        {/* MOOD RADIAL GLOW over banner */}
+                        {mood && (
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background: `radial-gradient(ellipse at bottom left, ${mood}55 0%, transparent 60%)`,
+                            }}
+                          />
+                        )}
+                      </>
+                    ) : (
+                      /* FALLBACK BANNER — decorative placeholder */
                       <div
-                        className="absolute inset-0"
-                        style={{
-                          background: `radial-gradient(ellipse at bottom left, ${mood}55 0%, transparent 60%)`,
-                        }}
-                      />
+                        className="bg-text h-full w-full"
+                        style={
+                          mood
+                            ? {
+                                background: `linear-gradient(135deg, ${mood}33 0%, ${mood}11 50%, var(--color-text) 100%)`,
+                              }
+                            : undefined
+                        }
+                      >
+                        {/* Decorative grid lines */}
+                        <svg
+                          className="absolute inset-0 h-full w-full opacity-10"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <defs>
+                            <pattern
+                              id="grid"
+                              width="40"
+                              height="40"
+                              patternUnits="userSpaceOnUse"
+                            >
+                              <path
+                                d="M 40 0 L 0 0 0 40"
+                                fill="none"
+                                stroke="var(--color-surface)"
+                                strokeWidth="0.5"
+                              />
+                            </pattern>
+                          </defs>
+                          <rect width="100%" height="100%" fill="url(#grid)" />
+                        </svg>
+
+                        {/* Centre icon */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div
+                            className="flex h-20 w-20 items-center justify-center rounded-full"
+                            style={
+                              mood
+                                ? {
+                                    backgroundColor: `${mood}22`,
+                                    border: `1px solid ${mood}44`,
+                                  }
+                                : {
+                                    backgroundColor: "var(--color-surface)",
+                                    opacity: 0.08,
+                                    border: "1px solid var(--color-border)",
+                                  }
+                            }
+                          >
+                            <FontAwesomeIcon
+                              icon={faCalendarDays}
+                              className="text-3xl"
+                              style={{
+                                color: mood || "var(--color-border)",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Bottom fade so text overlay remains readable */}
+                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+                      </div>
                     )}
 
                     {/* STATUS BADGE on banner */}
@@ -345,17 +426,8 @@ export default function Home() {
                         onClick={() =>
                           navigate(`/events/${priorityResult.data.id}`)
                         }
-                        className="rounded-base cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
-                        style={
-                          mood
-                            ? { backgroundColor: mood }
-                            : { backgroundColor: undefined }
-                        }
-                        className={
-                          !mood
-                            ? "rounded-base bg-brand cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
-                            : "rounded-base cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
-                        }
+                        className="rounded-base bg-brand cursor-pointer px-5 py-3 text-xs font-bold tracking-wider text-white uppercase transition hover:opacity-90"
+                        style={mood ? { backgroundColor: mood } : undefined}
                       >
                         Enter Event Arena{" "}
                         <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
@@ -370,7 +442,7 @@ export default function Home() {
                     className="text-text-soft text-4xl opacity-40"
                   />
                   <p className="text-text-soft mt-4 text-sm font-medium">
-                    No strategic events active inside the coloseum grid.
+                    No strategic events active.
                   </p>
                 </div>
               )}
