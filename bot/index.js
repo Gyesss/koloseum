@@ -39,7 +39,6 @@ async function startBot() {
   sock.ev.on("connection.update", async (update) => {
     const { connection, qr, lastDisconnect } = update;
 
-    // Request pairing code when QR would appear (socket is ready)
     if (qr && !pairingCodeRequested && !sock.authState.creds.registered) {
       pairingCodeRequested = true;
 
@@ -55,9 +54,6 @@ async function startBot() {
         console.log("\n==================================");
         console.log("📱 PAIRING CODE:", code);
         console.log("==================================");
-        console.log(
-          "Enter this code in WhatsApp > Linked Devices > Link with phone number\n",
-        );
       } catch (err) {
         console.error("❌ Failed to get pairing code:", err.message);
       }
@@ -90,6 +86,21 @@ async function startBot() {
 
 /**
  * ======================
+ * HELPERS
+ * ======================
+ */
+function formatDate(dateInput) {
+  const d = new Date(dateInput);
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}, ${pad(
+    d.getHours(),
+  )}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`;
+}
+
+/**
+ * ======================
  * SEND INVITATION API
  * ======================
  */
@@ -112,7 +123,6 @@ app.post("/send-invitation", async (req, res) => {
     });
   }
 
-  // Respond immediately, process in background
   res.status(202).json({
     success: true,
     message: "Invitation queued",
@@ -137,16 +147,24 @@ ${event.tagline}
 > ${event.description}
 
 📍 ${event.location}
-🕛 From ${new Date(event.startAt).toLocaleString("id-ID")}
-🕒 To ${new Date(event.endAt).toLocaleString("id-ID")}
+🕛 From ${formatDate(event.startAt)}
+🕒 To ${formatDate(event.endAt)}
 
 📄 ${content}
           `.trim();
 
-          await sock.sendMessage(jid, {
-            image: event.bannerUrl ? { url: event.bannerUrl } : undefined,
+          const payload = {
             caption: message,
-          });
+          };
+
+          if (event.bannerUrl && typeof event.bannerUrl === "string") {
+            payload.image = { url: event.bannerUrl };
+          } else {
+            payload.text = message;
+            delete payload.caption;
+          }
+
+          await sock.sendMessage(jid, payload);
 
           console.log("✅ Sent to:", jid);
         } catch (err) {
