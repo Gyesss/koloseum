@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express from "express";
 import makeWASocket, {
   useMultiFileAuthState,
@@ -7,6 +8,8 @@ import makeWASocket, {
 
 import pino from "pino";
 import { Boom } from "@hapi/boom";
+
+dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 const app = express();
