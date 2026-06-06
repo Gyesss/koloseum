@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth"; // Diubah presisi sesuai struktur folder src kamu
+import useAuth from "../hooks/useAuth";
+import koloseumLogo from "../assets/koloseum-logo.svg";
 
 const STEPS = [
   {
@@ -56,7 +57,7 @@ const STEPS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useAuth(); // Menggunakan state 'user' bawaan dari AuthProvider kamu
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
 
   const lastScrollTime = useRef(0);
@@ -71,7 +72,6 @@ export default function Onboarding() {
 
   const handleNext = useCallback(() => {
     if (isLast) {
-      // Jika objek user ada (artinya sudah login) ke /explore, jika null ke /login
       if (user) {
         navigate("/explore");
       } else {
@@ -207,7 +207,7 @@ export default function Onboarding() {
                       {/* Final Showcase Container Brand Presentation */}
                       <div className="border-border/30 bg-surface/5 rounded-card animate-in zoom-in-95 mb-6 border p-8 shadow-2xl backdrop-blur-md delay-75 duration-500">
                         <img
-                          src="/src/assets/koloseum-logo.svg"
+                          src={koloseumLogo}
                           alt="Koloseum Logo"
                           className="mx-auto h-20 w-20 animate-pulse drop-shadow-[0_0_15px_rgba(182,148,99,0.3)] md:h-24 md:w-24"
                         />
