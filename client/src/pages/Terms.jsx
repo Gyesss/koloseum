@@ -22,6 +22,10 @@ export default function Terms() {
         body: "All content posted on Koloseum remains the responsibility of the user who created it. However, by posting content, you grant Koloseum a limited license to display and distribute it within the platform.",
       },
       {
+        title: "Account Assistance",
+        body: "If you wish to delete your account, have forgotten your password, or need to change your password, you may contact the administrator at +62 823-3692-4926 for assistance.",
+      },
+      {
         title: "Termination",
         body: "We reserve the right to suspend or terminate access to the platform if any violation of these terms is detected.",
       },
