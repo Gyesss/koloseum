@@ -41,7 +41,9 @@ export default function Register() {
     try {
       await register(form);
 
-      navigate("/verify-email", { state: { email: form.email } });
+      navigate("/onboarding", {
+        state: { email: form.email, fromRegister: true },
+      });
     } catch (err) {
       console.error(err);
 

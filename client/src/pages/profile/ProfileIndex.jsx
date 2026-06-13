@@ -179,7 +179,7 @@ export default function ProfileIndex() {
             </Link>
 
             <Link
-              to="/forget-password"
+              to="/forgot-password"
               className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
             >
               <FontAwesomeIcon icon={faKey} className="text-blue-500" />

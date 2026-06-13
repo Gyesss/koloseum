@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import koloseumLogo from "../assets/koloseum-logo.svg";
 
@@ -57,8 +57,13 @@ const STEPS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [step, setStep] = useState(0);
+
+  // Detect if user arrived here right after registering
+  const fromRegister = location.state?.fromRegister === true;
+  const registeredEmail = location.state?.email || "";
 
   const lastScrollTime = useRef(0);
   const touchStartX = useRef(0);
@@ -70,26 +75,36 @@ export default function Onboarding() {
 
   const isLast = step === STEPS.length - 1;
 
-  const handleNext = useCallback(() => {
-    if (isLast) {
+  const handleFinish = useCallback(() => {
+    if (fromRegister) {
+      // After register flow: always go to email verification
+      navigate("/verify-email", { state: { email: registeredEmail } });
+    } else {
+      // Normal access from Home or elsewhere
       if (user) {
         navigate("/explore");
       } else {
         navigate("/login");
       }
+    }
+  }, [fromRegister, registeredEmail, user, navigate]);
+
+  const handleNext = useCallback(() => {
+    if (isLast) {
+      handleFinish();
       return;
     }
     setStep((prev) => prev + 1);
-  }, [isLast, user, navigate]);
+  }, [isLast, handleFinish]);
 
   const handleBack = useCallback(() => {
     if (step === 0) return;
     setStep((prev) => prev - 1);
   }, [step]);
 
-  function handleSkip() {
-    navigate("/");
-  }
+  const handleSkip = useCallback(() => {
+    handleFinish();
+  }, [handleFinish]);
 
   // Scroll wheel desktop interaction with custom throttling
   useEffect(() => {
@@ -186,7 +201,7 @@ export default function Onboarding() {
               onClick={handleSkip}
               className="rounded-base cursor-pointer border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-wider text-white/80 backdrop-blur-xs transition hover:bg-white/10"
             >
-              Skip
+              {fromRegister ? "Skip to Verify" : "Skip"}
             </button>
           </div>
         </div>
@@ -280,7 +295,11 @@ export default function Onboarding() {
               onClick={handleNext}
               className="bg-brand rounded-base shadow-brand/10 cursor-pointer px-6 py-3 text-xs font-bold tracking-widest text-white uppercase shadow-lg transition hover:opacity-95"
             >
-              {isLast ? "Get Started" : "Next"}
+              {isLast
+                ? fromRegister
+                  ? "Verify Email"
+                  : "Get Started"
+                : "Next"}
             </button>
           </div>
         </div>
