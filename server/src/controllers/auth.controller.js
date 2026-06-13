@@ -134,3 +134,21 @@ export const resetPassword = async (req, res) => {
     data: result,
   });
 };
+
+export const deleteAccount = async (req, res) => {
+  const parsed = validator.deleteAccountSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: parsed.error.errors,
+    });
+  }
+
+  await service.deleteAccount(req.user.id, parsed.data.password);
+
+  res.json({
+    success: true,
+    data: { message: "Account deleted successfully." },
+  });
+};

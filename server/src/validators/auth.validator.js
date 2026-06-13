@@ -53,3 +53,9 @@ export const resetPasswordSchema = z
     newPassword: z.string().min(6).max(100),
   })
   .strict();
+
+export const deleteAccountSchema = z
+  .object({
+    password: z.string().min(6).max(100),
+  })
+  .strict();

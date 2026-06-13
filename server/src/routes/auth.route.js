@@ -14,4 +14,6 @@ router.post("/resend-reset-otp", controller.resendResetOtp);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/reset-password", controller.resetPassword);
 
+router.delete("/account", auth(), controller.deleteAccount);
+
 export default router;

@@ -167,3 +167,13 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
 
   return { message: "Password reset successfully." };
 };
+
+export const deleteAccount = async (userId, password) => {
+  const user = await repo.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const ok = await comparePassword(password, user.password);
+  if (!ok) throw new Error("Incorrect password");
+
+  await repo.deleteUser(userId);
+};
