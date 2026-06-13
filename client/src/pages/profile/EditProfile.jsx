@@ -8,10 +8,11 @@ import {
   faLock,
   faShieldHalved,
   faGear,
+  faEye,
+  faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
-
 import { updateProfile } from "../../api/profile";
 import { createUserAvatar, createUserBanner } from "../../api/media";
 
@@ -20,10 +21,10 @@ export default function EditProfile() {
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     username: user?.username || "",
-    email: user?.email || "",
     fullName: user?.fullName || "",
     bio: user?.bio || "",
     phone: user?.phone || "",
@@ -35,7 +36,6 @@ export default function EditProfile() {
   });
 
   const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
-
   const [bannerPreview, setBannerPreview] = useState(user?.bannerUrl || "");
 
   const handleChange = (e) => {
@@ -83,7 +83,31 @@ export default function EditProfile() {
     try {
       setLoading(true);
 
-      await updateProfile(form);
+      // Only send fields that are non-empty and different from the original user data
+      const original = {
+        username: user?.username || "",
+        fullName: user?.fullName || "",
+        bio: user?.bio || "",
+        phone: user?.phone || "",
+        address: user?.address || "",
+        gender: user?.gender || "",
+        birthDay: user?.birthDay
+          ? new Date(user.birthDay).toISOString().split("T")[0]
+          : "",
+      };
+
+      const payload = Object.fromEntries(
+        Object.entries(form).filter(
+          ([key, value]) => value !== "" && value !== original[key],
+        ),
+      );
+
+      if (Object.keys(payload).length === 0) {
+        navigate("/profile");
+        return;
+      }
+
+      await updateProfile(payload);
 
       navigate("/profile");
     } catch (err) {
@@ -175,7 +199,6 @@ export default function EditProfile() {
 
                   <label className="bg-brand absolute right-1 bottom-1 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-sm transition hover:opacity-90">
                     <FontAwesomeIcon icon={faCamera} />
-
                     <input
                       type="file"
                       accept="image/jpeg, image/png, image/webp"
@@ -197,13 +220,16 @@ export default function EditProfile() {
                   onChange={handleChange}
                 />
 
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                />
+                {/* Email — read-only, shown but not editable */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-text text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-surface border-border text-text-soft rounded-base h-12 cursor-not-allowed border px-4 text-sm outline-none"
+                  />
+                </div>
 
                 <Input
                   label="Full Name"
@@ -230,7 +256,6 @@ export default function EditProfile() {
                   <label className="text-text text-sm font-medium">
                     Gender
                   </label>
-
                   <select
                     name="gender"
                     value={form.gender}
@@ -251,32 +276,50 @@ export default function EditProfile() {
                   onChange={handleChange}
                 />
 
-                {/* Disabled Role */}
+                {/* Role — read-only display */}
                 <div className="flex flex-col gap-2">
                   <label className="text-text text-sm font-medium">Role</label>
-
                   <div className="bg-surface border-border text-text-soft rounded-base flex h-12 items-center gap-3 border px-4 text-sm">
                     <FontAwesomeIcon icon={faShieldHalved} />
                     {user?.role}
                   </div>
                 </div>
 
-                {/* Disabled Password */}
+                {/* Password — read-only with show/hide toggle */}
                 <div className="flex flex-col gap-2 md:col-span-2">
                   <label className="text-text text-sm font-medium">
                     Password
                   </label>
-
-                  <div className="bg-surface border-border text-text-soft rounded-base flex h-12 items-center gap-3 border px-4 text-sm">
-                    <FontAwesomeIcon icon={faLock} />
-                    Password change is currently unavailable
+                  <div className="bg-surface border-border rounded-base flex h-12 items-center gap-3 border px-4 text-sm">
+                    <FontAwesomeIcon
+                      icon={faLock}
+                      className="text-text-soft shrink-0"
+                    />
+                    <span className="text-text-soft flex-1 tracking-widest">
+                      {showPassword
+                        ? "Your password is managed separately."
+                        : "••••••••••••"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="text-text-soft hover:text-text transition"
+                      aria-label={
+                        showPassword
+                          ? "Hide password hint"
+                          : "Show password hint"
+                      }
+                    >
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEyeSlash : faEye}
+                      />
+                    </button>
                   </div>
                 </div>
 
                 {/* Bio */}
                 <div className="flex flex-col gap-2 md:col-span-2">
                   <label className="text-text text-sm font-medium">Bio</label>
-
                   <textarea
                     name="bio"
                     rows={5}
@@ -296,7 +339,6 @@ export default function EditProfile() {
                   className="bg-brand rounded-base inline-flex items-center gap-2 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <FontAwesomeIcon icon={faFloppyDisk} />
-
                   {loading ? "Saving..." : "Save Changes"}
                 </button>
               </div>
@@ -312,7 +354,6 @@ function Input({ label, name, value, onChange, type = "text" }) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-text text-sm font-medium">{label}</label>
-
       <input
         type={type}
         name={name}
