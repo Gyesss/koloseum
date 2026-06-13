@@ -11,3 +11,7 @@ export const findByEmail = (email) => {
 export const findById = (id) => {
   return prisma.user.findUnique({ where: { id } });
 };
+
+export const updateUser = (id, data) => {
+  return prisma.user.update({ where: { id }, data });
+};

@@ -26,3 +26,30 @@ export const loginSchema = z
     password: z.string().min(6).max(100),
   })
   .strict();
+
+export const verifyEmailSchema = z
+  .object({
+    email: z.string().email(),
+    otp: z.string().length(6, "OTP must be 6 digits"),
+  })
+  .strict();
+
+export const resendOtpSchema = z
+  .object({
+    email: z.string().email(),
+  })
+  .strict();
+
+export const forgotPasswordSchema = z
+  .object({
+    email: z.string().email(),
+  })
+  .strict();
+
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email(),
+    otp: z.string().length(6, "OTP must be 6 digits"),
+    newPassword: z.string().min(6).max(100),
+  })
+  .strict();
