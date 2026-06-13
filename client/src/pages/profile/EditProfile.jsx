@@ -16,6 +16,15 @@ import useAuth from "../../hooks/useAuth";
 import { updateProfile } from "../../api/profile";
 import { createUserAvatar, createUserBanner } from "../../api/media";
 
+const parseBirthDay = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export default function EditProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -23,17 +32,17 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const [form, setForm] = useState({
+  const original = {
     username: user?.username || "",
     fullName: user?.fullName || "",
     bio: user?.bio || "",
     phone: user?.phone || "",
     address: user?.address || "",
     gender: user?.gender || "",
-    birthDay: user?.birthDay
-      ? new Date(user.birthDay).toISOString().split("T")[0]
-      : "",
-  });
+    birthDay: parseBirthDay(user?.birthDay),
+  };
+
+  const [form, setForm] = useState(original);
 
   const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
   const [bannerPreview, setBannerPreview] = useState(user?.bannerUrl || "");
@@ -83,28 +92,22 @@ export default function EditProfile() {
     try {
       setLoading(true);
 
-      // Only send fields that are non-empty and different from the original user data
-      const original = {
-        username: user?.username || "",
-        fullName: user?.fullName || "",
-        bio: user?.bio || "",
-        phone: user?.phone || "",
-        address: user?.address || "",
-        gender: user?.gender || "",
-        birthDay: user?.birthDay
-          ? new Date(user.birthDay).toISOString().split("T")[0]
-          : "",
-      };
-
       const payload = Object.fromEntries(
-        Object.entries(form).filter(
-          ([key, value]) => value !== "" && value !== original[key],
-        ),
+        Object.entries(form).filter(([key, value]) => value !== original[key]),
       );
 
       if (Object.keys(payload).length === 0) {
         navigate("/profile");
         return;
+      }
+
+      // Convert empty string to null so backend can clear the field
+      if ("gender" in payload) {
+        payload.gender = payload.gender === "" ? null : payload.gender;
+      }
+
+      if ("birthDay" in payload) {
+        payload.birthDay = payload.birthDay === "" ? null : payload.birthDay;
       }
 
       await updateProfile(payload);
@@ -218,9 +221,10 @@ export default function EditProfile() {
                   name="username"
                   value={form.username}
                   onChange={handleChange}
+                  required
                 />
 
-                {/* Email — read-only, shown but not editable */}
+                {/* Email — read-only */}
                 <div className="flex flex-col gap-2">
                   <label className="text-text text-sm font-medium">Email</label>
                   <input
@@ -236,6 +240,7 @@ export default function EditProfile() {
                   name="fullName"
                   value={form.fullName}
                   onChange={handleChange}
+                  required
                 />
 
                 <Input
@@ -252,6 +257,7 @@ export default function EditProfile() {
                   onChange={handleChange}
                 />
 
+                {/* Gender — with clearable default option */}
                 <div className="flex flex-col gap-2">
                   <label className="text-text text-sm font-medium">
                     Gender
@@ -262,7 +268,7 @@ export default function EditProfile() {
                     onChange={handleChange}
                     className="bg-background border-border text-text rounded-base focus:border-brand h-12 border px-4 text-sm outline-none"
                   >
-                    <option value="">Select Gender</option>
+                    <option value="">Not specified</option>
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                   </select>
@@ -304,11 +310,7 @@ export default function EditProfile() {
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
                       className="text-text-soft hover:text-text transition"
-                      aria-label={
-                        showPassword
-                          ? "Hide password hint"
-                          : "Show password hint"
-                      }
+                      aria-label={showPassword ? "Hide" : "Show"}
                     >
                       <FontAwesomeIcon
                         icon={showPassword ? faEyeSlash : faEye}
@@ -350,7 +352,14 @@ export default function EditProfile() {
   );
 }
 
-function Input({ label, name, value, onChange, type = "text" }) {
+function Input({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  required = false,
+}) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-text text-sm font-medium">{label}</label>
@@ -359,6 +368,7 @@ function Input({ label, name, value, onChange, type = "text" }) {
         name={name}
         value={value}
         onChange={onChange}
+        required={required}
         className="bg-background border-border text-text rounded-base focus:border-brand h-12 border px-4 text-sm outline-none"
       />
     </div>

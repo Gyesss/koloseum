@@ -21,7 +21,7 @@ export const updateProfileScheme = z
     bio: z.string().max(1000).optional(),
     phone: z.string().max(32).optional(),
     address: z.string().max(1000).optional(),
-    birthDay: z.coerce.date().optional(),
-    gender: z.enum(["MALE", "FEMALE"]).optional(),
+    birthDay: z.coerce.date().nullable().optional(),
+    gender: z.enum(["MALE", "FEMALE"]).nullable().optional(),
   })
   .strict();
