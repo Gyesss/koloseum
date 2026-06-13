@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
   faEnvelope,
+  faEnvelopeOpen,
   faPhone,
   faLocationDot,
   faCakeCandles,
@@ -170,6 +171,17 @@ export default function ProfileIndex() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-4">
+            <Link
+              to="/profile/change-email"
+              className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
+            >
+              <FontAwesomeIcon
+                icon={faEnvelopeOpen}
+                className="text-blue-500"
+              />
+              Change Email
+            </Link>
+
             <Link
               to="/profile/change-password"
               className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
