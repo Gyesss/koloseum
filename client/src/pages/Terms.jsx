@@ -23,7 +23,7 @@ export default function Terms() {
       },
       {
         title: "Account Assistance",
-        body: "If you wish to delete your account, have forgotten your password, or need to change your password, you may contact the administrator at +62 823-3692-4926 for assistance.",
+        body: "If you suspect that your account has been compromised or encounter any account-related issues that cannot be resolved through the app's built-in features, please contact the administrator at +62 823-3ad2-4dah26 for further assistance.",
       },
       {
         title: "Termination",
