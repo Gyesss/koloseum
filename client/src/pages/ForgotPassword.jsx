@@ -1,32 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowRight,
-  faEnvelope,
-  faLock,
-} from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
-import useAuth from "../hooks/useAuth";
+import { forgotPassword } from "../api/auth";
 
-export default function Login() {
+export default function ForgotPassword() {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,23 +19,14 @@ export default function Login() {
     setError("");
 
     try {
-      await login(form);
-
-      navigate("/");
+      await forgotPassword({ email });
+      navigate("/reset-password", { state: { email } });
     } catch (err) {
       console.error(err);
-
-      const message = err?.response?.data?.message;
-
-      if (
-        typeof message === "string" &&
-        message.toLowerCase().includes("email not verified")
-      ) {
-        navigate("/verify-email", { state: { email: form.email } });
-        return;
-      }
-
-      setError(message || "Invalid email or password.");
+      setError(
+        err?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -71,19 +46,19 @@ export default function Login() {
             </p>
 
             <h1 className="font-heading text-text text-4xl font-semibold tracking-tight">
-              Welcome Back
+              Forgot Password
             </h1>
 
             <p className="text-text-soft font-body mt-4 text-sm leading-7">
-              Sign in to continue exploring events, collaborations, and your
-              personalized experience.
+              Enter your registered email address and we&apos;ll send you a
+              one-time code to reset your password.
             </p>
           </div>
 
           {/* Error */}
           {error && (
             <div className="bg-background border-border text-text rounded-base mb-6 border px-4 py-3 text-sm">
-              {typeof error === "string" ? error : "Something went wrong."}
+              {error}
             </div>
           )}
 
@@ -92,7 +67,7 @@ export default function Login() {
             {/* Email */}
             <div>
               <label className="text-text mb-2 block text-sm font-medium">
-                Email
+                Email Address
               </label>
 
               <div className="relative">
@@ -104,45 +79,12 @@ export default function Login() {
                 <input
                   type="email"
                   name="email"
-                  value={form.email}
-                  onChange={handleChange}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="marcus@example.com"
                   required
                   className="bg-background border-border text-text focus:border-brand rounded-base w-full border py-3 pr-4 pl-11 text-sm transition-colors outline-none"
                 />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="text-text mb-2 block text-sm font-medium">
-                <span>Password</span>
-              </label>
-
-              <div className="relative">
-                <FontAwesomeIcon
-                  icon={faLock}
-                  className="text-text-soft absolute top-1/2 left-4 -translate-y-1/2 text-sm"
-                />
-
-                <input
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  required
-                  className="bg-background border-border text-text focus:border-brand rounded-base w-full border py-3 pr-4 pl-11 text-sm transition-colors outline-none"
-                />
-              </div>
-
-              <div className="mt-2 text-right">
-                <Link
-                  to="/forgot-password"
-                  className="text-text-soft hover:text-brand text-xs transition"
-                >
-                  Forgot password?
-                </Link>
               </div>
             </div>
 
@@ -153,10 +95,10 @@ export default function Login() {
               className="bg-brand rounded-base inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
-                "Signing In..."
+                "Sending..."
               ) : (
                 <>
-                  Sign In
+                  Send Reset Code
                   <FontAwesomeIcon icon={faArrowRight} />
                 </>
               )}
@@ -166,12 +108,12 @@ export default function Login() {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-text-soft text-sm">
-              Don&apos;t have an account?{" "}
+              Remembered your password?{" "}
               <Link
-                to="/register"
+                to="/login"
                 className="text-brand font-medium transition hover:opacity-80"
               >
-                Create Account
+                Sign In
               </Link>
             </p>
           </div>

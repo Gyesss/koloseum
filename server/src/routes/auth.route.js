@@ -10,6 +10,7 @@ router.get("/me", auth(), controller.me);
 
 router.post("/verify-email", controller.verifyEmail);
 router.post("/resend-otp", controller.resendVerifyOtp);
+router.post("/resend-reset-otp", controller.resendResetOtp);
 router.post("/forgot-password", controller.forgotPassword);
 router.post("/reset-password", controller.resetPassword);
 

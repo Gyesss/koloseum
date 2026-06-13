@@ -85,6 +85,20 @@ export const resendVerifyOtp = async (req, res) => {
   });
 };
 
+export const resendResetOtp = async (req, res) => {
+  const parsed = validator.resendOtpSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res
+      .status(400)
+      .json({ success: false, message: parsed.error.errors });
+  }
+  const result = await service.resendOtp({
+    email: parsed.data.email,
+    type: "RESET_PASSWORD",
+  });
+  res.json({ success: true, data: result });
+};
+
 export const forgotPassword = async (req, res) => {
   const parsed = validator.forgotPasswordSchema.safeParse(req.body);
 
