@@ -92,11 +92,14 @@ async function startBot() {
 function formatDate(dateInput) {
   const d = new Date(dateInput);
 
-  const pad = (n) => String(n).padStart(2, "0");
+  const localISO = new Date(
+    d.getTime() - d.getTimezoneOffset() * 60000,
+  ).toISOString();
+  const [datePart, timePart] = localISO.split("T");
+  const [year, month, day] = datePart.split("-");
+  const [hours, minutes, seconds] = timePart.split(":");
 
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}, ${pad(
-    d.getHours(),
-  )}.${pad(d.getMinutes())}.${pad(d.getSeconds())}`;
+  return `${day}/${month}/${year}, ${hours}.${minutes}.${seconds.slice(0, 2)}`;
 }
 
 /**
@@ -144,7 +147,7 @@ app.post("/send-invitation", async (req, res) => {
 *${event.name}*
 ${event.tagline}
 
-> ${event.description}
+${event.description}
 
 📍 ${event.location}
 🕛 From ${formatDate(event.startAt)}
