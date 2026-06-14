@@ -18,6 +18,7 @@ import EditProfile from "../pages/profile/EditProfile";
 import UserProfile from "../pages/profile/UserProfile";
 import ChangeEmail from "../pages/profile/ChangeEmail";
 import ChangePassword from "../pages/profile/ChangePassword";
+import DeleteAccount from "../pages/profile/DeleteAccount";
 
 import EventsIndex from "../pages/events/EventsIndex";
 import EventDetail from "../pages/events/EventDetail";
@@ -61,6 +62,7 @@ function AppRoutes() {
               <Route path="edit" element={<EditProfile />} />
               <Route path="change-email" element={<ChangeEmail />} />
               <Route path="change-password" element={<ChangePassword />} />
+              <Route path="delete-account" element={<DeleteAccount />} />
             </Route>
 
             <Route path="users">
