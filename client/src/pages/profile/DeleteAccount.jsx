@@ -7,6 +7,7 @@ import {
   faEye,
   faEyeSlash,
   faTriangleExclamation,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
@@ -70,28 +71,44 @@ export default function DeleteAccount({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/60 px-4 py-8 backdrop-blur-sm sm:items-center sm:py-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="bg-surface border-border rounded-card w-full max-w-lg overflow-hidden border shadow-xl">
         {/* Top accent — red for danger */}
         <div className="h-2 w-full bg-red-500" />
 
         <div className="p-6 md:p-8">
           {/* Heading */}
-          <div className="mb-6 flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
-              <FontAwesomeIcon icon={faTriangleExclamation} />
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+                <FontAwesomeIcon icon={faTriangleExclamation} />
+              </div>
+              <div>
+                <h2 className="font-heading text-text text-2xl font-semibold tracking-tight">
+                  Delete Account
+                </h2>
+                <p className="text-text-soft mt-1 text-sm leading-6">
+                  This action is{" "}
+                  <strong className="text-red-500">permanent</strong> and cannot
+                  be undone. All your posts, comments, votes, media, and
+                  collaborations will be erased forever.
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-heading text-text text-2xl font-semibold tracking-tight">
-                Delete Account
-              </h2>
-              <p className="text-text-soft mt-1 text-sm leading-6">
-                This action is{" "}
-                <strong className="text-red-500">permanent</strong> and cannot
-                be undone. All your posts, comments, votes, media, and
-                collaborations will be erased forever.
-              </p>
-            </div>
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-text-soft hover:text-text mt-1 shrink-0 transition"
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
           </div>
 
           {error && (
@@ -194,7 +211,7 @@ export default function DeleteAccount({ onClose }) {
             )}
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={onClose}
@@ -206,7 +223,7 @@ export default function DeleteAccount({ onClose }) {
               <button
                 type="submit"
                 disabled={!canSubmit || loading}
-                className="rounded-base inline-flex items-center gap-2 bg-red-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-base inline-flex items-center justify-center gap-2 bg-red-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <FontAwesomeIcon icon={faTrashCan} />
                 {loading ? "Deleting..." : "Delete My Account"}

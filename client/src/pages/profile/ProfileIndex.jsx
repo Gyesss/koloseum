@@ -12,7 +12,6 @@ import {
   faUser,
   faRightFromBracket,
   faKey,
-  faLock,
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -189,16 +188,8 @@ export default function ProfileIndex() {
               to="/profile/change-password"
               className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
             >
-              <FontAwesomeIcon icon={faLock} className="text-blue-500" />
-              Change Password
-            </Link>
-
-            <Link
-              to="/forgot-password"
-              className="border-border rounded-base text-text inline-flex items-center gap-2 border px-5 py-3 text-sm font-medium transition hover:bg-white/5"
-            >
               <FontAwesomeIcon icon={faKey} className="text-blue-500" />
-              Reset Password
+              Change Password
             </Link>
 
             <button

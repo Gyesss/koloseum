@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -37,6 +37,83 @@ function PasswordInput({ label, name, value, onChange }) {
         >
           <FontAwesomeIcon icon={show ? faEyeSlash : faEye} />
         </button>
+      </div>
+    </div>
+  );
+}
+
+function getStrength(password) {
+  if (!password) return null;
+
+  let score = 0;
+  const checks = {
+    length: password.length >= 8,
+    longLength: password.length >= 12,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    symbol: /[^A-Za-z0-9]/.test(password),
+  };
+
+  if (checks.length) score++;
+  if (checks.longLength) score++;
+  if (checks.uppercase) score++;
+  if (checks.lowercase) score++;
+  if (checks.number) score++;
+  if (checks.symbol) score++;
+
+  if (score <= 2)
+    return { label: "Weak", color: "#ef4444", width: "25%", checks };
+  if (score <= 3)
+    return { label: "Fair", color: "#f97316", width: "50%", checks };
+  if (score <= 4)
+    return { label: "Good", color: "#eab308", width: "75%", checks };
+  return { label: "Strong", color: "#22c55e", width: "100%", checks };
+}
+
+function PasswordStrength({ password }) {
+  const strength = useMemo(() => getStrength(password), [password]);
+
+  if (!strength) return null;
+
+  const criteria = [
+    { label: "At least 8 characters", met: strength.checks.length },
+    { label: "At least 12 characters", met: strength.checks.longLength },
+    { label: "Uppercase letter", met: strength.checks.uppercase },
+    { label: "Lowercase letter", met: strength.checks.lowercase },
+    { label: "Number", met: strength.checks.number },
+    { label: "Symbol (!@#$...)", met: strength.checks.symbol },
+  ];
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Bar */}
+      <div className="flex items-center gap-3">
+        <div className="bg-border h-1.5 flex-1 overflow-hidden rounded-full">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: strength.width, background: strength.color }}
+          />
+        </div>
+        <span
+          className="text-xs font-semibold"
+          style={{ color: strength.color }}
+        >
+          {strength.label}
+        </span>
+      </div>
+
+      {/* Criteria checklist */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+        {criteria.map((c) => (
+          <p
+            key={c.label}
+            className="text-xs transition-colors"
+            style={{ color: c.met ? "#22c55e" : "#78716c" }}
+          >
+            {c.met ? "✓" : "○"} {c.label}
+          </p>
+        ))}
       </div>
     </div>
   );
@@ -134,12 +211,15 @@ export default function ChangePassword() {
                 onChange={handleChange}
               />
 
-              <PasswordInput
-                label="New Password"
-                name="newPassword"
-                value={form.newPassword}
-                onChange={handleChange}
-              />
+              <div className="flex flex-col gap-3">
+                <PasswordInput
+                  label="New Password"
+                  name="newPassword"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                />
+                <PasswordStrength password={form.newPassword} />
+              </div>
 
               <PasswordInput
                 label="Confirm New Password"
