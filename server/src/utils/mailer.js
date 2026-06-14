@@ -1,15 +1,7 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import "dotenv/config";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
-  secure: process.env.MAIL_SECURE === "true",
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendOtpEmail = async ({ to, name, otp, type }) => {
   const subjects = {
@@ -73,8 +65,8 @@ export const sendOtpEmail = async ({ to, name, otp, type }) => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_ADDRESS}>`,
+  await resend.emails.send({
+    from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
     to,
     subject: subjects[type],
     html,

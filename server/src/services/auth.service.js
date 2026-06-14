@@ -39,12 +39,18 @@ export const register = async (data) => {
     fullName: data.fullName,
   });
 
-  await createAndSendOtp({
-    userId: user.id,
-    email: user.email,
-    fullName: user.fullName,
-    type: "EMAIL_VERIFY",
-  });
+  try {
+    await createAndSendOtp({
+      userId: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      type: "EMAIL_VERIFY",
+    });
+  } catch (err) {
+    // Rollback: delete user if email fails
+    await repo.deleteUser(user.id);
+    throw new Error("Failed to send verification email. Please try again.");
+  }
 
   return {
     message:
