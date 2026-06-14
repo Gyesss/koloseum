@@ -72,6 +72,15 @@ const TYPE_CONFIG = {
   },
 };
 
+// Converts a datetime-local string (e.g. "2025-06-14T10:00") from the
+// user's local timezone into a proper UTC ISO string before sending to
+// the server. Without this, Node.js interprets the bare string as UTC,
+// causing the "Timeline must be within event duration" error for users
+// in timezones ahead of UTC (e.g. WIB = UTC+7).
+const toISOStringFromLocal = (localDatetimeStr) => {
+  return new Date(localDatetimeStr).toISOString();
+};
+
 export default function TimelineSection({
   timelines,
   canManage,
@@ -122,9 +131,14 @@ export default function TimelineSection({
     });
   };
 
+  // FIX: Convert startAt and endAt to UTC ISO strings before sending to server
   const handleUpdate = async (id, data) => {
     try {
-      await onUpdate(id, data);
+      await onUpdate(id, {
+        ...data,
+        startAt: toISOStringFromLocal(data.startAt),
+        endAt: toISOStringFromLocal(data.endAt),
+      });
       setEditingId(null);
     } catch (err) {
       alert("Failed to update: " + (err.message || "Unknown error"));
@@ -152,7 +166,15 @@ export default function TimelineSection({
             onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.target);
-              onCreate(Object.fromEntries(formData));
+              const data = Object.fromEntries(formData);
+
+              // FIX: Convert datetime-local values to UTC ISO strings before
+              // sending, so the server receives timezone-aware timestamps
+              // consistent with how event dates are stored in the database.
+              data.startAt = toISOStringFromLocal(data.startAt);
+              data.endAt = toISOStringFromLocal(data.endAt);
+
+              onCreate(data);
               e.target.reset();
             }}
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
