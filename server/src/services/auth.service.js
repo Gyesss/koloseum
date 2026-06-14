@@ -28,7 +28,23 @@ const createAndSendOtp = async ({ userId, email, fullName, type }) => {
 
 export const register = async (data) => {
   const exists = await repo.findByEmail(data.email);
-  if (exists) throw new Error("Email already used");
+
+  if (exists) {
+    if (!exists.isVerified) {
+      await repo.deleteUser(exists.id);
+    } else {
+      throw new Error("Email already used");
+    }
+  }
+
+  const usernameTaken = await repo.findByUsername(data.username);
+  if (usernameTaken) {
+    if (usernameTaken.isVerified) {
+      throw new Error("Username already taken");
+    } else {
+      await repo.deleteUser(usernameTaken.id);
+    }
+  }
 
   const hashed = await hashPassword(data.password);
 
@@ -47,7 +63,6 @@ export const register = async (data) => {
       type: "EMAIL_VERIFY",
     });
   } catch (err) {
-    // Rollback: delete user if email fails
     await repo.deleteUser(user.id);
     throw new Error("Failed to send verification email. Please try again.");
   }
@@ -113,12 +128,6 @@ export const resendOtp = async ({ email, type }) => {
   const existing = await verificationRepo.findToken(user.id, type);
   if (existing && !existing.usedAt) {
     const cooldown = 60 * 1000;
-    const elapsed =
-      Date.now() -
-      new Date(
-        existing.createdAt ??
-          existing.expiresAt - OTP_EXPIRES_MINUTES * 60 * 1000,
-      ).getTime();
     const createdApprox = new Date(
       existing.expiresAt.getTime() - OTP_EXPIRES_MINUTES * 60 * 1000,
     );

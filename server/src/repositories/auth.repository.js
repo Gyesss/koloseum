@@ -8,6 +8,10 @@ export const findByEmail = (email) => {
   return prisma.user.findUnique({ where: { email } });
 };
 
+export const findByUsername = (username) => {
+  return prisma.user.findUnique({ where: { username } });
+};
+
 export const findById = (id) => {
   return prisma.user.findUnique({ where: { id } });
 };
