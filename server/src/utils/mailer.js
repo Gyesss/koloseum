@@ -16,48 +16,78 @@ export const sendOtpEmail = async ({ to, name, otp, type }) => {
 
   const descriptions = {
     EMAIL_VERIFY:
-      "Use the OTP code below to verify your email address. This code is valid for <strong>10 minutes</strong>.",
+      'Use the OTP code below to verify your email address. This code is valid for <strong style="color:#b69463;">10 minutes</strong>.',
     RESET_PASSWORD:
-      "Use the OTP code below to reset your password. This code is valid for <strong>10 minutes</strong>.",
+      'Use the OTP code below to reset your password. This code is valid for <strong style="color:#b69463;">10 minutes</strong>.',
   };
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${subjects[type]}</title>
       </head>
-      <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
+      <body style="margin:0;padding:0;background:#fffaf2;font-family:'Inter',Arial,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffaf2;padding:48px 0;">
           <tr>
             <td align="center">
-              <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+              <table width="500" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #dcc8a6;box-shadow:0 4px 24px rgba(182,148,99,0.08);">
+
+                <!-- Top gradient accent -->
                 <tr>
-                  <td style="background:#4f46e5;padding:32px 40px;text-align:center;">
-                    <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">${titles[type]}</h1>
+                  <td style="height:4px;background:linear-gradient(to right,#dcc8a6,#b69463,#d6b98c);font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+
+                <!-- Header -->
+                <tr>
+                  <td style="background:#fffaf2;padding:36px 48px 28px;text-align:center;border-bottom:1px solid #dcc8a6;">
+                    <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.35em;color:#b69463;text-transform:uppercase;">Koloseum</p>
+                    <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:600;color:#44403c;letter-spacing:-0.5px;">${titles[type]}</h1>
                   </td>
                 </tr>
+
+                <!-- Body -->
                 <tr>
-                  <td style="padding:36px 40px;">
-                    <p style="margin:0 0 16px;color:#374151;font-size:15px;">Hello, <strong>${name}</strong>!</p>
-                    <p style="margin:0 0 28px;color:#6b7280;font-size:14px;line-height:1.6;">
+                  <td style="padding:36px 48px;">
+                    <p style="margin:0 0 12px;font-size:15px;color:#44403c;">Hello, <strong style="color:#44403c;">${name}</strong>!</p>
+
+                    <p style="margin:0 0 32px;font-size:14px;color:#78716c;line-height:1.7;">
                       ${descriptions[type]}
                     </p>
-                    <div style="text-align:center;margin:0 0 28px;">
-                      <span style="display:inline-block;background:#f3f4f6;border-radius:8px;padding:18px 40px;font-size:36px;font-weight:700;letter-spacing:10px;color:#4f46e5;">${otp}</span>
+
+                    <!-- OTP Box -->
+                    <div style="text-align:center;margin:0 0 32px;">
+                      <div style="display:inline-block;background:#fffaf2;border:1px solid #dcc8a6;border-radius:16px;padding:20px 48px;">
+                        <span style="font-family:Georgia,'Times New Roman',serif;font-size:40px;font-weight:700;letter-spacing:12px;color:#b69463;">${otp}</span>
+                      </div>
                     </div>
-                    <p style="margin:0;color:#9ca3af;font-size:12px;text-align:center;">
-                      If you did not request this, please ignore this email.
+
+                    <!-- Divider -->
+                    <div style="height:1px;background:#dcc8a6;margin:0 0 28px;"></div>
+
+                    <p style="margin:0;font-size:12px;color:#78716c;text-align:center;line-height:1.6;">
+                      If you did not request this, please ignore this email.<br/>
+                      Do not share this code with anyone.
                     </p>
                   </td>
                 </tr>
+
+                <!-- Footer -->
                 <tr>
-                  <td style="background:#f9fafb;padding:20px 40px;text-align:center;">
-                    <p style="margin:0;color:#d1d5db;font-size:12px;">&copy; ${new Date().getFullYear()} All rights reserved.</p>
+                  <td style="background:#fffaf2;border-top:1px solid #dcc8a6;padding:20px 48px;text-align:center;">
+                    <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.3em;color:#b69463;text-transform:uppercase;">Koloseum</p>
+                    <p style="margin:0;font-size:11px;color:#dcc8a6;">&copy; ${new Date().getFullYear()} All rights reserved.</p>
                   </td>
                 </tr>
+
               </table>
+
+              <!-- Bottom note -->
+              <p style="margin:20px 0 0;font-size:11px;color:#78716c;text-align:center;">
+                This is an automated message. Please do not reply to this email.
+              </p>
             </td>
           </tr>
         </table>
