@@ -16,6 +16,8 @@ import Notifications from "../pages/Notifications";
 import ProfileIndex from "../pages/profile/ProfileIndex";
 import EditProfile from "../pages/profile/EditProfile";
 import UserProfile from "../pages/profile/UserProfile";
+import ChangeEmail from "../pages/profile/ChangeEmail";
+import ChangePassword from "../pages/profile/ChangePassword";
 
 import EventsIndex from "../pages/events/EventsIndex";
 import EventDetail from "../pages/events/EventDetail";
@@ -57,7 +59,10 @@ function AppRoutes() {
             <Route path="profile">
               <Route index element={<ProfileIndex />} />
               <Route path="edit" element={<EditProfile />} />
+              <Route path="change-email" element={<ChangeEmail />} />
+              <Route path="change-password" element={<ChangePassword />} />
             </Route>
+
             <Route path="users">
               <Route path=":userId" element={<UserProfile />} />
             </Route>

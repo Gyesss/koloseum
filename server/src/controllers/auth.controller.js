@@ -87,16 +87,23 @@ export const resendVerifyOtp = async (req, res) => {
 
 export const resendResetOtp = async (req, res) => {
   const parsed = validator.resendOtpSchema.safeParse(req.body);
+
   if (!parsed.success) {
-    return res
-      .status(400)
-      .json({ success: false, message: parsed.error.errors });
+    return res.status(400).json({
+      success: false,
+      message: parsed.error.errors,
+    });
   }
+
   const result = await service.resendOtp({
     email: parsed.data.email,
     type: "RESET_PASSWORD",
   });
-  res.json({ success: true, data: result });
+
+  res.json({
+    success: true,
+    data: result,
+  });
 };
 
 export const forgotPassword = async (req, res) => {
@@ -135,6 +142,42 @@ export const resetPassword = async (req, res) => {
   });
 };
 
+export const changePassword = async (req, res) => {
+  const parsed = validator.changePasswordSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: parsed.error.errors,
+    });
+  }
+
+  const result = await service.changePassword(req.user.id, parsed.data);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+};
+
+export const changeEmail = async (req, res) => {
+  const parsed = validator.changeEmailSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: parsed.error.errors,
+    });
+  }
+
+  const result = await service.changeEmail(req.user.id, parsed.data);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+};
+
 export const deleteAccount = async (req, res) => {
   const parsed = validator.deleteAccountSchema.safeParse(req.body);
 
@@ -145,7 +188,10 @@ export const deleteAccount = async (req, res) => {
     });
   }
 
-  await service.deleteAccount(req.user.id, parsed.data.password);
+  await service.deleteAccount(req.user.id, {
+    password: parsed.data.password,
+    adminPassword: parsed.data.adminPassword,
+  });
 
   res.json({
     success: true,

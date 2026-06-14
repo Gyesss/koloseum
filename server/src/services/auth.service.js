@@ -183,12 +183,68 @@ export const resetPassword = async ({ email, otp, newPassword }) => {
   return { message: "Password reset successfully." };
 };
 
-export const deleteAccount = async (userId, password) => {
+export const changePassword = async (
+  userId,
+  { currentPassword, newPassword },
+) => {
+  const user = await repo.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const ok = await comparePassword(currentPassword, user.password);
+  if (!ok) throw new Error("Current password is incorrect");
+
+  if (currentPassword === newPassword)
+    throw new Error("New password must be different from current password");
+
+  const hashed = await hashPassword(newPassword);
+  await repo.updateUser(userId, { password: hashed });
+
+  return { message: "Password changed successfully." };
+};
+
+export const changeEmail = async (userId, { newEmail, password }) => {
   const user = await repo.findById(userId);
   if (!user) throw new Error("User not found");
 
   const ok = await comparePassword(password, user.password);
   if (!ok) throw new Error("Incorrect password");
+
+  if (newEmail === user.email)
+    throw new Error("New email must be different from current email");
+
+  const taken = await repo.findByEmail(newEmail);
+  if (taken) throw new Error("Email already used by another account");
+
+  await repo.updateUser(userId, { email: newEmail, isVerified: false });
+
+  await createAndSendOtp({
+    userId,
+    email: newEmail,
+    fullName: user.fullName,
+    type: "EMAIL_VERIFY",
+  });
+
+  return {
+    message:
+      "Email updated. Please verify your new email address with the OTP we just sent.",
+    newEmail,
+  };
+};
+
+export const deleteAccount = async (userId, { password, adminPassword }) => {
+  const user = await repo.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const ok = await comparePassword(password, user.password);
+  if (!ok) throw new Error("Incorrect password");
+
+  if (["ADMIN", "ORGANIZER"].includes(user.role)) {
+    const envAdminPassword = process.env.ACCOUNT_DELETE_ADMIN_PASSWORD;
+    if (!envAdminPassword)
+      throw new Error("Admin deletion password is not configured");
+    if (adminPassword !== envAdminPassword)
+      throw new Error("Invalid admin deletion password");
+  }
 
   await repo.deleteUser(userId);
 };

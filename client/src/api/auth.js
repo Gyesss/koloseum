@@ -1,12 +1,10 @@
 import api from "./client";
 
-// username, email, password, fullName
 export const register = async (data) => {
   const response = await api.post("/auth/register", data);
   return response.data;
 };
 
-// email, password
 export const login = async (data) => {
   const response = await api.post("/auth/login", data);
   return response.data;
@@ -17,13 +15,11 @@ export const getMe = async () => {
   return response.data;
 };
 
-// email, otp
 export const verifyEmail = async (data) => {
   const response = await api.post("/auth/verify-email", data);
   return response.data;
 };
 
-// email
 export const resendOtp = async (data) => {
   const endpoint =
     data.type === "RESET_PASSWORD"
@@ -33,14 +29,27 @@ export const resendOtp = async (data) => {
   return response.data;
 };
 
-// email
 export const forgotPassword = async (data) => {
   const response = await api.post("/auth/forgot-password", data);
   return response.data;
 };
 
-// email, otp, newPassword
 export const resetPassword = async (data) => {
   const response = await api.post("/auth/reset-password", data);
+  return response.data;
+};
+
+export const changePassword = async (data) => {
+  const response = await api.patch("/auth/change-password", data);
+  return response.data;
+};
+
+export const changeEmail = async (data) => {
+  const response = await api.patch("/auth/change-email", data);
+  return response.data;
+};
+
+export const deleteAccount = async (data) => {
+  const response = await api.delete("/auth/account", { data });
   return response.data;
 };

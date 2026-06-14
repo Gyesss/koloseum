@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,9 +17,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import useAuth from "../../hooks/useAuth";
+import DeleteAccount from "./DeleteAccount";
 
 export default function ProfileIndex() {
   const { user, logout } = useAuth();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   if (!user) return null;
 
@@ -224,6 +227,7 @@ export default function ProfileIndex() {
           <div className="mt-6">
             <button
               type="button"
+              onClick={() => setShowDeleteModal(true)}
               className="rounded-base inline-flex items-center gap-2 bg-red-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-600"
             >
               <FontAwesomeIcon icon={faTrashCan} />
@@ -232,6 +236,11 @@ export default function ProfileIndex() {
           </div>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <DeleteAccount onClose={() => setShowDeleteModal(false)} />
+      )}
     </div>
   );
 }
